@@ -1,107 +1,59 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { WarehouseRepository } from './warehouse.repository';
-import { StockRepository } from './stock.repository';
-import { StockMovementRepository } from './stock-movement.repository';
-import { Warehouse } from '@prisma/client';
-import { CreateWarehouseDto, UpdateWarehouseDto, CreateStockMovementDto } from './inventory.schema';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Inventory } from '@prisma/client';
+import { AdjustStockDto } from './inventory.schema';
 
-/**
- * Сервис управления складом.
- *
- * - **Склады** (несколько физических точек хранения)
- * - **Остатки** (`StockItem`) — количественный учёт по товару + склад
- * - **Движения** (`StockMovement`) — оприходование (IN), списание (OUT),
- *   перемещение (TRANSFER). Каждое движение создаёт запись и корректирует остаток.
- *
- * Движения типа OUT автоматически уменьшают остаток (отрицательная дельта).
- */
 @Injectable()
 export class InventoryService {
-  constructor(
-    private readonly warehouseRepo: WarehouseRepository,
-    private readonly stockRepo: StockRepository,
-    private readonly movementRepo: StockMovementRepository,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  // ═══════════════════════════════════════
-  //  Warehouses
-  // ═══════════════════════════════════════
-
-  /** Все склады. */
-  async getAllWarehouses(): Promise<Warehouse[]> {
-    return this.warehouseRepo.findAll();
+  /** Получить остатки товара на складе */
+  async getStock(productId: string, warehouseId: string): Promise<Inventory | null> {
+    return this.prisma.inventory.findFirst({
+      where: { productId, warehouseId },
+    });
   }
 
-  /** Склад по id. */
-  async getWarehouseById(id: string): Promise<Warehouse> {
-    const w = await this.warehouseRepo.findById(id);
-    if (!w) throw new NotFoundException(`Склад с ID ${id} не найден`);
-    return w;
-  }
+  /** Атомарное изменение остатков */
+  async adjustStock(warehouseId: string, data: AdjustStockDto): Promise<Inventory> {
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Находим или создаем запись инвентаря
+      let inventory = await tx.inventory.findFirst({
+        where: { productId: data.productId, warehouseId },
+      });
 
-  /** Создать склад. */
-  async createWarehouse(data: CreateWarehouseDto): Promise<Warehouse> {
-    return this.warehouseRepo.create(data);
-  }
+      if (!inventory) {
+        inventory = await tx.inventory.create({
+          data: {
+            productId: data.productId,
+            warehouseId,
+            quantity: 0,
+          },
+        });
+      }
 
-  /** Обновить склад. */
-  async updateWarehouse(id: string, data: UpdateWarehouseDto): Promise<Warehouse> {
-    await this.getWarehouseById(id);
-    return this.warehouseRepo.update(id, data);
-  }
+      // 2. Проверка: не уходим ли в минус (если списываем)
+      if (inventory.quantity + data.quantity < 0) {
+        throw new BadRequestException('Insufficient stock');
+      }
 
-  /** Удалить склад. */
-  async deleteWarehouse(id: string): Promise<Warehouse> {
-    await this.getWarehouseById(id);
-    return this.warehouseRepo.delete(id);
-  }
+      // 3. Обновляем количество
+      const updatedInventory = await tx.inventory.update({
+        where: { id: inventory.id },
+        data: { quantity: { increment: data.quantity } },
+      });
 
-  // ═══════════════════════════════════════
-  //  Stock
-  // ═══════════════════════════════════════
+      // 4. Создаем движение товара
+      await tx.stockMovement.create({
+        data: {
+          inventoryId: inventory.id,
+          quantity: data.quantity,
+          type: data.type,
+          notes: data.notes,
+        },
+      });
 
-  /** Остатки с фильтрацией. */
-  async getStock(filters: {
-    warehouseId?: string;
-    productId?: string;
-    lowStock?: boolean;
-    skip?: number;
-    take?: number;
-  }) {
-    const items = await this.stockRepo.findAll(filters);
-    return { items, total: items.length };
-  }
-
-  /** Количество товаров ниже минимального порога. */
-  async lowStockCount(): Promise<number> {
-    return this.stockRepo.countLowStock();
-  }
-
-  // ═══════════════════════════════════════
-  //  Movements
-  // ═══════════════════════════════════════
-
-  /**
-   * Создать движение товара и скорректировать остаток.
-   *
-   * - IN → quantity добавляется к остатку
-   * - OUT → quantity вычитается из остатка
-   * - TRANSFER → quantity вычитается из источника (в приёмник — отдельное движение)
-   */
-  async createMovement(data: CreateStockMovementDto & { userId?: string }) {
-    await this.getWarehouseById(data.warehouseId);
-    const movement = await this.movementRepo.create(data);
-
-    const delta = data.type === 'OUT' || data.type === 'TRANSFER'
-      ? -Math.abs(data.quantity)
-      : Math.abs(data.quantity);
-    await this.stockRepo.adjustQuantity(data.productId, data.warehouseId, delta);
-
-    return movement;
-  }
-
-  /** История движений. */
-  async getMovements(productId?: string, warehouseId?: string, limit = 50) {
-    return this.movementRepo.findAll(productId, warehouseId, limit);
+      return updatedInventory;
+    });
   }
 }

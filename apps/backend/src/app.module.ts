@@ -7,13 +7,15 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { CustomerModule } from './customers/customer.module';
-import { CategoryModule } from './categories/category.module';
-import { ProductModule } from './products/product.module';
-import { InventoryModule } from './inventory/inventory.module';
-import { SaleModule } from './sales/sale.module';
-import { FinanceModule } from './finance/finance.module';
-import { AnalyticsModule } from './analytics/analytics.module';
-import { LoggerModule } from './common/logger/logger.module';
+import { CategoryModule } = require('./categories/category.module');
+import { ProductModule } = require('./products/product.module');
+import { InventoryModule } = require('./inventory/inventory.module');
+import { SaleModule } = require('./sales/sale.module');
+import { FinanceModule } = require('./finance/finance.module');
+import { AnalyticsModule } = require('./analytics/analytics.module');
+import { WarehouseModule } = require('./warehouses/warehouse.module');
+import { StockTransferModule } = require('./stock-transfers/stock-transfer.module');
+import { LoggerModule } = require('./common/logger/logger.module');
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { LoggerModule } from './common/logger/logger.module';
     ProductModule,
     InventoryModule,
     SaleModule,
+    WarehouseModule,
+    StockTransferModule,
     FinanceModule,
     AnalyticsModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({

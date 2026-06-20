@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,20 +8,12 @@ datasource db {
   relationMode = "foreignKeys"
 }
 
-// --------------------------------------
-// Enums
-// --------------------------------------
-
 enum UserRole {
   ADMIN
   MANAGER
   CASHIER
   WAREHOUSE
 }
-
-// --------------------------------------
-// Models
-// --------------------------------------
 
 model User {
   id        String   @id @default(dbgenerated("gen_random_uuid()"))
@@ -35,8 +24,10 @@ model User {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
 
-  // Relations
   sessions  Session[]
 }
 
@@ -55,11 +46,10 @@ model Session {
 model CustomerGroup {
   id       String    @id @default(dbgenerated("gen_random_uuid()"))
   name     String
-  discount Int      @default(0) // 500 = 5%
+  discount Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   customers Customer[]
 }
 
@@ -70,13 +60,12 @@ model Customer {
   phone     String?
   address   String?
   taxId     String?
-  discount  Int           @default(0) // 500 = 5%
+  discount  Int           @default(0)
   notes     String?
   isActive  Boolean       @default(true)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  // Relations
   groupId   String?
   group     CustomerGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
   sales     Sale[]
@@ -88,12 +77,11 @@ model Category {
   name        String
   description String?
   parentId    String?
-  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children    Category[] @relation("CategoryHierarchy")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // Relations
   products   Product[]
 }
 
@@ -104,48 +92,62 @@ model Product {
   sku         String          @unique
   barcode     String?
   unit        String
-  price       Int             // копейки
-  cost        Int             // копейки
+  price       Int             
+  cost        Int             
   isActive    Boolean        @default(true)
   image       String?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  // Relations
   categoryId  String?
-  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   variants    ProductVariant[]
   inventory   Inventory[]
   sales       SaleItem[]
+  transfers   StockTransfer[]
 }
 
 model ProductVariant {
   id         String   @id @default(dbgenerated("gen_random_uuid()"))
   name       String
   sku        String   @unique
-  price      Int      // копейки
-  cost       Int      // копейки
-  attributes String   // JSON { color, size }
+  price      Int      
+  cost       Int      
+  attributes String   
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  // Relations
   productId  String
-  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   saleItems  SaleItem[]
 }
 
-model Warehouse {
-  id        String    @id @default(dbgenerated("gen_random_uuid()"))
-  name      String
-  address   String?
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+model Branch {
+  id          String     @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  address     String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  warehouses  Warehouse[]
+  users       User[]
+}
 
-  // Relations
-  inventory  Inventory[]
+model Warehouse {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  address     String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  branchId    String
+  branch      Branch    @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  inventory   Inventory[]
+  transfersFrom StockTransfer[] @relation("StockTransferFrom")
+  transfersTo   StockTransfer[] @relation("StockTransferTo")
+  sales       Sale[]
 }
 
 model Inventory {
@@ -157,9 +159,8 @@ model Inventory {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Relations
   productId    String
-  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   warehouseId  String
   warehouse    Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   movements    StockMovement[]
@@ -168,29 +169,47 @@ model Inventory {
 model StockMovement {
   id          String     @id @default(dbgenerated("gen_random_uuid()"))
   quantity    Int
-  type        String     // IN | OUT | ADJUSTMENT
-  reference   String?   // Sale ID, Purchase ID, etc.
+  type        String     
+  reference   String?   
   notes       String?
   createdAt   DateTime  @default(now())
 
-  // Relations
   inventoryId String
-  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+}
+
+model StockTransfer {
+  id              String     @id @default(dbgenerated("gen_random_uuid()"))
+  quantity        Int
+  status          String     
+  createdAt       DateTime   @default(now())
+  completedAt     DateTime?
+
+  productId       String
+  product         Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fromWarehouseId String
+  fromWarehouse   Warehouse  @relation("StockTransferFrom", fields: [fromWarehouseId], references: [id], onDelete: Cascade)
+  toWarehouseId   String
+  toWarehouse     Warehouse  @relation("StockTransferTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
 }
 
 model Sale {
   id        String     @id @default(dbgenerated("gen_random_uuid()"))
-  total     Int       // копейки
-  discount   Int       @default(0) // 500 = 5%
-  tax       Int       @default(0) // копейки
-  status    String    @default("DRAFT") // DRAFT | COMPLETED | CANCELLED
+  number      String     @unique
+  total     Int       
+  discount   Int       @default(0) 
+  tax       Int       @default(0) 
+  status    String    @default("DRAFT") 
   notes     String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // Relations
   customerId String?
   customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  
+  warehouseId String
+  warehouse   Warehouse  @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  
   items      SaleItem[]
   payments   Payment[]
 }
@@ -198,31 +217,30 @@ model Sale {
 model SaleItem {
   id         String   @id @default(dbgenerated("gen_random_uuid()"))
   quantity   Int
-  price      Int     // копейки (на момент продажи)
-  discount   Int     @default(0) // 500 = 5%
-  tax        Int     @default(0) // копейки
+  price      Int     
+  discount   Int     @default(0) 
+  tax        Int     @default(0) 
+  total      Int     
   createdAt  DateTime @default(now())
 
-  // Relations
   saleId     String
   sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   productId  String?
-  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   variantId  String?
-  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
 }
 
 model Payment {
   id         String   @id @default(dbgenerated("gen_random_uuid()"))
-  amount     Int     // копейки
-  method     String  // CASH | CARD | TRANSFER
+  amount     Int     
+  method     String  
   reference  String?
-  status     String  @default("PENDING") // PENDING | COMPLETED | FAILED | REFUNDED
+  status     String  @default("PENDING") 
   notes      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  // Relations
   saleId     String
   sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
@@ -230,25 +248,23 @@ model Payment {
 model Account {
   id        String    @id @default(dbgenerated("gen_random_uuid()"))
   name      String
-  type      String   // ASSET | LIABILITY | EQUITY | INCOME | EXPENSE
-  balance   Int      @default(0) // копейки
+  type      String   
+  balance   Int      @default(0) 
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
-  // Relations
   transactions Transaction[]
 }
 
 model Transaction {
   id          String    @id @default(dbgenerated("gen_random_uuid()"))
-  amount      Int      // копейки
-  type        String   // DEBIT | CREDIT
-  reference   String?  // Sale ID, Invoice ID, etc.
+  amount      Int      
+  type        String   
+  reference   String?  
   notes       String?
   createdAt   DateTime  @default(now())
 
-  // Relations
   accountId   String
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   invoiceId   String?
@@ -258,15 +274,14 @@ model Transaction {
 model Invoice {
   id          String        @id @default(dbgenerated("gen_random_uuid()"))
   number      String        @unique
-  total       Int           // копейки
-  tax         Int           @default(0) // копейки
-  status      String        @default("DRAFT") // DRAFT | SENT | PAID | CANCELLED
+  total       Int           
+  tax         Int           @default(0) 
+  status      String        @default("DRAFT") 
   dueDate     DateTime?
   notes       String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
-  // Relations
   customerId  String?
   customer    Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
   transactions Transaction[]
