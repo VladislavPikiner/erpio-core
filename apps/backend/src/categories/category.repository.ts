@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { BaseRepository } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { Category } from '@prisma/client';
 import { CreateCategoryDto, UpdateCategoryDto } from './category.schema';
-import { uuidv7 } from '../common/utils/uuid';
 
 @Injectable()
-export class CategoryRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class CategoryRepository extends BaseRepository<Category> {
+  constructor(private readonly prisma: PrismaService) {
+    super(prisma.category);
+  }
 
   async findAll(includeInactive = false): Promise<Category[]> {
-    return this.prisma.category.findMany({
+    return this.model.findMany({
       where: includeInactive ? {} : { isActive: true },
       orderBy: { sortOrder: 'asc' },
       include: {
@@ -20,7 +22,7 @@ export class CategoryRepository {
   }
 
   async findById(id: string): Promise<Category | null> {
-    return this.prisma.category.findUnique({
+    return this.model.findUnique({
       where: { id },
       include: {
         parent: true,
@@ -30,7 +32,7 @@ export class CategoryRepository {
   }
 
   async findRoots(includeInactive = false): Promise<Category[]> {
-    return this.prisma.category.findMany({
+    return this.model.findMany({
       where: { parentId: null, ...(includeInactive ? {} : { isActive: true }) },
       orderBy: { sortOrder: 'asc' },
       include: {
@@ -40,22 +42,22 @@ export class CategoryRepository {
   }
 
   async getTree(): Promise<Category[]> {
-    const all = await this.prisma.category.findMany({
+    const all = await this.model.findMany({
       orderBy: { sortOrder: 'asc' },
-      include: { children: { orderBy: { sortOrder: 'asc' } } },
+      include: { children: { orderBy: 'asc' } },
     });
-    return all.filter((c) => !c.parentId);
+    return all.filter((c: Category) => !c.parentId);
   }
 
   async create(data: CreateCategoryDto): Promise<Category> {
-    return this.prisma.category.create({
-      data: { id: uuidv7(), ...data },
+    return this.model.create({
+      data,
       include: { parent: true },
     });
   }
 
   async update(id: string, data: UpdateCategoryDto): Promise<Category> {
-    return this.prisma.category.update({
+    return this.model.update({
       where: { id },
       data,
       include: { parent: true, children: true },
@@ -63,18 +65,17 @@ export class CategoryRepository {
   }
 
   async delete(id: string): Promise<Category> {
-    // Сначала переназначаем детей на родителя удаляемой категории
-    const category = await this.prisma.category.findUnique({ where: { id } });
+    const category = await this.model.findUnique({ where: { id } });
     if (category) {
       await this.prisma.category.updateMany({
         where: { parentId: id },
         data: { parentId: category.parentId },
       });
     }
-    return this.prisma.category.delete({ where: { id } });
+    return this.model.delete({ where: { id } });
   }
 
   async count(): Promise<number> {
-    return this.prisma.category.count({ where: { isActive: true } });
+    return this.model.count({ where: { isActive: true } });
   }
 }

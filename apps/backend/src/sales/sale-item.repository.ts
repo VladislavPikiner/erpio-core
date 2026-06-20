@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { uuidv7 } from '../common/utils/uuid';
 
 export interface CreateSaleItemData {
   productId: string;
@@ -24,7 +23,6 @@ export class SaleItemRepository {
   createMany(saleId: string, items: CreateSaleItemData[]) {
     return this.prisma.saleItem.createMany({
       data: items.map((i) => ({
-        id: uuidv7(),
         saleId,
         productId: i.productId,
         quantity: i.quantity,

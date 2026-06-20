@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { BaseRepository } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { Invoice } from '@prisma/client';
-import { uuidv7 } from '../common/utils/uuid';
 
 interface CreateInvoiceData {
   customerId?: string | null;
@@ -21,12 +21,14 @@ interface InvoiceFilter {
 }
 
 @Injectable()
-export class InvoiceRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class InvoiceRepository extends BaseRepository<Invoice> {
+  constructor(private readonly prisma: PrismaService) {
+    super(prisma.invoice);
+  }
 
   async generateNumber(): Promise<string> {
     const prefix = `INV-${new Date().getFullYear()}-`;
-    const last = await this.prisma.invoice.findFirst({
+    const last = await this.model.findFirst({
       where: { number: { startsWith: prefix } },
       orderBy: { number: 'desc' },
     });
@@ -44,7 +46,7 @@ export class InvoiceRepository {
       if (filters.dateTo) where.date.lte = filters.dateTo;
     }
 
-    return this.prisma.invoice.findMany({
+    return this.model.findMany({
       where,
       skip: filters.skip ?? 0,
       take: filters.take ?? 50,
@@ -54,7 +56,7 @@ export class InvoiceRepository {
   }
 
   async findById(id: string): Promise<Invoice | null> {
-    return this.prisma.invoice.findUnique({
+    return this.model.findUnique({
       where: { id },
       include: { customer: true },
     });
@@ -62,9 +64,8 @@ export class InvoiceRepository {
 
   async create(data: CreateInvoiceData): Promise<Invoice> {
     const number = await this.generateNumber();
-    return this.prisma.invoice.create({
+    return this.model.create({
       data: {
-        id: uuidv7(),
         number,
         customerId: data.customerId ?? null,
         dueDate: data.dueDate,
@@ -79,7 +80,7 @@ export class InvoiceRepository {
   }
 
   async updateStatus(id: string, status: string): Promise<Invoice> {
-    return this.prisma.invoice.update({
+    return this.model.update({
       where: { id },
       data: { status: status as any },
       include: { customer: true },
@@ -95,6 +96,6 @@ export class InvoiceRepository {
       if (filters.dateFrom) where.date.gte = filters.dateFrom;
       if (filters.dateTo) where.date.lte = filters.dateTo;
     }
-    return this.prisma.invoice.count({ where });
+    return this.model.count({ where });
   }
 }

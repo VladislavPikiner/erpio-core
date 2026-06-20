@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { BaseRepository } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { Product } from '@prisma/client';
 import { CreateProductDto, UpdateProductDto } from './product.schema';
-import { uuidv7 } from '../common/utils/uuid';
 
 export interface ProductFilter {
   search?: string;
@@ -17,11 +17,13 @@ export interface ProductFilter {
 const LIST_INCLUDE = { category: true, variants: true } as const;
 
 @Injectable()
-export class ProductRepository {
-  constructor(private readonly prisma: PrismaService) {}
+export class ProductRepository extends BaseRepository<Product> {
+  constructor(private readonly prisma: PrismaService) {
+    super(prisma.product);
+  }
 
   async findAll(filters: ProductFilter): Promise<Product[]> {
-    return this.prisma.product.findMany({
+    return this.model.findMany({
       where: this.buildWhere(filters),
       skip: filters.skip ?? 0,
       take: filters.take ?? 50,
@@ -31,34 +33,30 @@ export class ProductRepository {
   }
 
   async findById(id: string): Promise<Product | null> {
-    return this.prisma.product.findUnique({ where: { id }, include: LIST_INCLUDE });
+    return this.model.findUnique({ where: { id }, include: LIST_INCLUDE });
   }
 
   async findBySku(sku: string): Promise<Product | null> {
-    return this.prisma.product.findUnique({ where: { sku } });
+    return this.model.findUnique({ where: { sku } });
   }
 
   async create(data: CreateProductDto): Promise<Product> {
-    return this.prisma.product.create({
-      data: { id: uuidv7(), ...data },
+    return this.model.create({
+      data,
       include: LIST_INCLUDE,
     });
   }
 
   async update(id: string, data: UpdateProductDto): Promise<Product> {
-    return this.prisma.product.update({
+    return this.model.update({
       where: { id },
       data,
       include: LIST_INCLUDE,
     });
   }
 
-  async delete(id: string): Promise<Product> {
-    return this.prisma.product.delete({ where: { id } });
-  }
-
   async count(filters: Partial<ProductFilter>): Promise<number> {
-    return this.prisma.product.count({ where: this.buildWhere(filters) });
+    return this.model.count({ where: this.buildWhere(filters) });
   }
 
   private buildWhere(f: Partial<ProductFilter>): any {
