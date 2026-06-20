@@ -35,9 +35,9 @@ export abstract class BaseRepository<T> {
     return this.model.findMany({ skip, take, where, orderBy });
   }
 
-  /** Создать запись с автогенерацией uuid v7. */
+  /** Создать запись. ID генерируется на стороне БД (UUID v7). */
   async create(data: any): Promise<T> {
-    return this.model.create({ data: { id: uuidv7(), ...data } });
+    return this.model.create({ data });
   }
 
   /** Обновить запись. */
