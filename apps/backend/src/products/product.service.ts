@@ -30,6 +30,7 @@ export class ProductService {
       isActive?: boolean;
       minPrice?: number;
       maxPrice?: number;
+      branchId?: string;
       skip?: number;
       take?: number;
     } = {},

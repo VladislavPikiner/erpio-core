@@ -86,6 +86,6 @@ export class ProductFilterInput {
   @Field(() => Int, { nullable: true })
   skip?: number;
 
-  @Field(() => Int, { nullable: true })
-  take?: number;
+  @Field({ nullable: true })
+  branchId?: string;
 }

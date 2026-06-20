@@ -5,35 +5,34 @@ import { CreateSaleInput, CreatePaymentInput, SaleFilterInput } from './sale.inp
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { AuthRole } from '../auth/decorators/auth-role.decorator';
 
 @Resolver(() => SaleType)
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class SaleResolver {
   constructor(private readonly service: SaleService) {}
 
   @Query(() => [SaleType])
-  @Roles('ADMIN', 'MANAGER', 'CASHIER')
+  @AuthRole('ADMIN', 'MANAGER', 'CASHIER')
   async sales(@Args('filter', { nullable: true }) filter?: SaleFilterInput) {
     const result = await this.service.getAll(filter ?? {});
     return result.items;
   }
 
   @Query(() => Int)
-  @Roles('ADMIN', 'MANAGER', 'CASHIER')
+  @AuthRole('ADMIN', 'MANAGER', 'CASHIER')
   async salesCount(@Args('filter', { nullable: true }) filter?: SaleFilterInput) {
     const result = await this.service.getAll(filter ?? {});
     return result.total;
   }
 
   @Query(() => SaleType)
-  @Roles('ADMIN', 'MANAGER', 'CASHIER')
+  @AuthRole('ADMIN', 'MANAGER', 'CASHIER')
   async sale(@Args('id') id: string) {
     return this.service.getById(id);
   }
 
   @Mutation(() => SaleType)
-  @Roles('ADMIN', 'MANAGER', 'CASHIER')
+  @AuthRole('ADMIN', 'MANAGER', 'CASHIER')
   async createSale(@Args('input') input: CreateSaleInput) {
     return this.service.create({
       customerId: input.customerId ?? null,

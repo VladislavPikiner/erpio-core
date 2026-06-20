@@ -11,7 +11,7 @@ export interface ProductFilter {
   minPrice?: number;
   maxPrice?: number;
   skip?: number;
-  take?: number;
+  branchId?: string;
 }
 
 const LIST_INCLUDE = { category: true, variants: true } as const;
@@ -75,6 +75,13 @@ export class ProductRepository extends BaseRepository<Product> {
         { barcode: { contains: f.search } },
       ];
     }
-    return where;
-  }
+    if (f.branchId) {
+      where.inventory = {
+        some: {
+          warehouse: {
+            branchId: f.branchId,
+          },
+        },
+      };
+    }
 }
