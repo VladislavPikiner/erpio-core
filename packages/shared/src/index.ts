@@ -4,3 +4,5 @@ export * from './api';
 export * from './hooks/useAuth';
 export * from './hooks/useProducts';
 export * from './store/useCart';
+export * from './components/Toast';
+export * from './components/ErrorBoundary';
