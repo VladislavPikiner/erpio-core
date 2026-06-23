@@ -5,6 +5,7 @@ import { join } from 'path';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { TerminusModule } from '@nestjs/terminus';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SentryModule } from './sentry/sentry.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 // import { UserModule } from './user/user.module'; // Old import
@@ -32,6 +33,7 @@ import { LoggerModule } from './common/logger/logger.module'; // Corrected impor
 
 @Module({
   imports: [
+    SentryModule,
     PrismaModule,
     LoggerModule,
     EventEmitterModule.forRoot(),

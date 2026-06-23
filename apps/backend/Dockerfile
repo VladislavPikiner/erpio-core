@@ -10,7 +10,7 @@ COPY package*.json pnpm-lock.yaml ./
 RUN npm install -g pnpm
 
 # Устанавливаем зависимости проекта
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # Копируем остальной код приложения
 COPY . .
@@ -30,7 +30,7 @@ COPY --from=builder /app/package*.json /app/pnpm-lock.yaml ./
 RUN npm install -g pnpm
 
 # Устанавливаем продакшн зависимости
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod
 
 # Копируем собранный код из build stage
 COPY --from=builder /app/dist ./dist

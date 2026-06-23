@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@erpio-core-db:5433/erpio_db?schema=public
+      - SENTRY_DSN=http://012dbac59a0542e9b87b9edbca1ddfb8@glitchtip:8000/1
+      - PORT=3000
+    depends_on:
+      - db
+      - redis # если redis нужен для бэкенда
+    networks:
+      - erpio-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: erpio-core-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=erpio_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - erpio-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: erpio-core-redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - erpio-network
+
+  glitchtip:
+    image: glitchtip/glitchtip
+    ports:
+      - "8080:8000"
+    environment:
+      - DATABASE_URL=postgres://glitchtip:glitchtip@postgres:5432/glitchtip
+      - REDIS_URL=redis://redis:6379/0
+      - DEFAULT_FROM_EMAIL=webmaster@localhost
+      - EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+      - SECRET_KEY=change_this_to_something_very_secret
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - erpio-network
+
+  postgres: # Postgres для GlitchTip
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=glitchtip
+      - POSTGRES_PASSWORD=glitchtip
+      - POSTGRES_DB=glitchtip
+    networks:
+      - erpio-network
+
+volumes:
+  postgres_data:
+
+networks:
+  erpio-network:
+    driver: bridge
