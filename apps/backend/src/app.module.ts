@@ -3,10 +3,13 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { TerminusModule } from '@nestjs/terminus';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 // import { UserModule } from './user/user.module'; // Old import
 import { UsersModule } from './users/users.module'; // New import
+import { HealthModule } from './health/health.module';
 import { CustomerModule } from './customers/customer.module';
 // import { CategoryModule } = require('./categories/category.module'); // Old import
 import { CategoryModule } from './categories/category.module'; // Corrected import
@@ -32,9 +35,12 @@ import { LoggerModule } from './common/logger/logger.module'; // Corrected impor
     PrismaModule,
     LoggerModule,
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
+    TerminusModule,
     AuthModule,
     // UserModule, // Remove old import
     UsersModule, // Add new import
+    HealthModule,
     CustomerModule,
     CategoryModule,
     ProductModule,

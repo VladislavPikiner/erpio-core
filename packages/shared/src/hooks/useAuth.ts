@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { z } from 'zod';
 import { apiFetch } from '../api';
-import { UserSession } from '../types';
+import { UserSession, UserSessionSchema } from '../schemas';
 
 export function useAuth() {
   const [user, setUser] = useState<UserSession | null>(null);
@@ -12,9 +13,12 @@ export function useAuth() {
 
   async function checkSession() {
     try {
-      const data = await apiFetch<UserSession>('/auth/me');
-      setUser(data);
-    } catch (e) {
+      const response = await apiFetch<any>('/auth/me'); // Получаем any, так как не знаем точный тип до валидации
+      const validatedUser = UserSessionSchema.parse(response);
+      setUser(validatedUser);
+    } catch (e: any) {
+      // Zod выбросит ошибку, если данные не соответствуют схеме
+      console.error("Authentication session check failed:", e.message);
       setUser(null);
     } finally {
       setIsLoading(false);

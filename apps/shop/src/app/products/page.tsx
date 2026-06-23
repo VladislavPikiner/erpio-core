@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { useProducts, Product } from '@/shared'; // Убедитесь, что путь корректный
+import { useProducts, Product, useCart } from '@/shared';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { DataTable } from "../components/ui/data-table";
 import { LayoutDashboard, Package, TrendingUp, ShoppingCart } from 'lucide-react';
@@ -73,8 +73,7 @@ export default function ProductsPage() {
   const { toast } = useToast();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-  // TODO: Реализовать управление корзиной через Context API или отдельный хук
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const { items: cartItems, addItem, updateQuantity, removeItem } = useCart();
 
   const handlePaginationChange = (updater: (old: PaginationState) => PaginationState) => {
     const newState = typeof updater === 'function' ? updater({
@@ -88,24 +87,18 @@ export default function ProductsPage() {
     setPage(0); // Сбрасываем на первую страницу при смене фильтра
   };
 
-  const addToCart = (product: any) => {
-    setCartItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-      }
-      return [...prev, { ...product, quantity: 1 }];
-    });
+  const addToCart = (product: Product) => {
+    addItem(product);
     toast.success('Товар добавлен в корзину!');
     setIsCartOpen(true);
   };
 
   const updateCartQuantity = (id: string, quantity: number) => {
-    setCartItems(prev => prev.map(item => item.id === id ? { ...item, quantity } : item));
+    updateQuantity(id, quantity);
   };
 
   const removeCartItem = (id: string) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+    removeItem(id);
     toast.success('Товар удален из корзины');
   };
 
