@@ -42,7 +42,11 @@ export class UsersRepository {
     return this.prisma.user.update({ where, data });
   }
 
-  async delete(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.delete({ where });
+  async delete(id: string): Promise<User> {
+    return this.prisma.user.delete({ where: { id } });
+  }
+
+  async count(where: Prisma.UserWhereInput): Promise<number> {
+    return this.prisma.user.count({ where });
   }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto } from './user.schema';
-import { hashPassword } from '../auth/utils/password.utils';
+import { hashPassword } from '../../auth/utils/password.utils';
 
 @Injectable()
 export class UserService {

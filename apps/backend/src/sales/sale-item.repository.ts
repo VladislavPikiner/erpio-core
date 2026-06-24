@@ -4,16 +4,16 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface CreateSaleItemData {
   productId: string;
   quantity: number;
-  unitPrice: number;
+  price: number;
   discount?: number;
 }
 
 export function computeItemTotal(item: CreateSaleItemData): number {
-  return item.unitPrice * item.quantity - (item.discount ?? 0);
+  return item.price * item.quantity - (item.discount ?? 0);
 }
 
 export function computeSubtotal(items: CreateSaleItemData[]): number {
-  return items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+  return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 }
 
 @Injectable()
@@ -26,7 +26,7 @@ export class SaleItemRepository {
         saleId,
         productId: i.productId,
         quantity: i.quantity,
-        unitPrice: i.unitPrice,
+        price: i.price,
         discount: i.discount ?? 0,
         total: computeItemTotal(i),
       })),

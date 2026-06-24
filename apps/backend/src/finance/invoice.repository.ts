@@ -36,30 +36,29 @@ export class InvoiceRepository extends BaseRepository<Invoice> {
     return `${prefix}${String(nextNum).padStart(5, '0')}`;
   }
 
-  async findAll(filters: InvoiceFilter): Promise<Invoice[]> {
-    const where: any = {};
-    if (filters.customerId) where.customerId = filters.customerId;
-    if (filters.status) where.status = filters.status;
-    if (filters.dateFrom || filters.dateTo) {
-      where.date = {};
-      if (filters.dateFrom) where.date.gte = filters.dateFrom;
-      if (filters.dateTo) where.date.lte = filters.dateTo;
-    }
-
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+  } = {}): Promise<Invoice[]> {
+    const { skip, take, where, orderBy } = params;
     return this.model.findMany({
       where,
-      skip: filters.skip ?? 0,
-      take: filters.take ?? 50,
-      orderBy: { date: 'desc' },
+      skip,
+      take,
+      orderBy: orderBy ?? { createdAt: 'desc' },
       include: { customer: true },
     });
   }
 
-  async findById(id: string): Promise<Invoice | null> {
-    return this.model.findUnique({
+  async findById(id: string | number): Promise<Invoice> {
+    const invoice = await this.model.findUnique({
       where: { id },
       include: { customer: true },
     });
+    if (!invoice) throw new NotFoundException(`Invoice with ID ${id} not found`);
+    return invoice;
   }
 
   async create(data: CreateInvoiceData): Promise<Invoice> {

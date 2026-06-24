@@ -12,4 +12,4 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     }),
   ],
 })
-export class GraphQLModule {}
+export class AppGraphQLModule {}

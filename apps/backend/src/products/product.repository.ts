@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { BaseRepository } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { Product } from '@prisma/client';
@@ -22,18 +22,27 @@ export class ProductRepository extends BaseRepository<Product> {
     super(prisma.product);
   }
 
-  async findAll(filters: ProductFilter): Promise<Product[]> {
+  async findAll(params: {
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+    filters?: ProductFilter;
+  } = {}): Promise<Product[]> {
+    const { skip, take, where, orderBy, filters } = params;
     return this.model.findMany({
-      where: this.buildWhere(filters),
-      skip: filters.skip ?? 0,
-      take: filters.take ?? 50,
-      orderBy: { name: 'asc' },
+      where: { ...where, ...this.buildWhere(filters ?? {}) },
+      skip,
+      take,
+      orderBy: orderBy ?? { name: 'asc' },
       include: LIST_INCLUDE,
     });
   }
 
-  async findById(id: string): Promise<Product | null> {
-    return this.model.findUnique({ where: { id }, include: LIST_INCLUDE });
+  async findById(id: string | number): Promise<Product> {
+    const product = await this.model.findUnique({ where: { id }, include: LIST_INCLUDE });
+    if (!product) throw new NotFoundException(`Product with ID ${id} not found`);
+    return product;
   }
 
   async findBySku(sku: string): Promise<Product | null> {

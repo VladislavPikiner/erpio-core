@@ -17,10 +17,8 @@ export class VariantRepository extends BaseRepository<ProductVariant> {
     });
   }
 
-  async create(productId: string, data: CreateVariantData): Promise<ProductVariant> {
-    return this.model.create({
-      data: { productId, ...data, attributes: data.attributes ?? {} },
-    });
+  async create(data: CreateVariantData): Promise<ProductVariant> {
+    return super.create({ productId: data.productId, ...data, attributes: data.attributes ?? {} });
   }
 
   async update(id: string, data: UpdateVariantData): Promise<ProductVariant> {

@@ -31,27 +31,37 @@ export class StockTransferRepository extends BranchScopedRepository<StockTransfe
   /**
    * Получить все перемещения для склада (откуда или куда).
    * @param warehouseId ID склада
+   * @param params Опции поиска
    */
-  async findAllScoped(warehouseId: string): Promise<StockTransfer[]> {
+  async findAllScoped(warehouseId: string, params: {
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+  } = {}): Promise<StockTransfer[]> {
+    const { skip, take, where, orderBy } = params;
     return this.model.findMany({
       where: {
+        ...where,
         OR: [
           { fromWarehouseId: warehouseId },
           { toWarehouseId: warehouseId },
         ],
       },
+      skip,
+      take,
+      orderBy,
     });
   }
 
   /**
    * Создать перемещение между складами.
-   * @param fromWarehouseId ID склада-отправителя
-   * @param toWarehouseId ID склада-получателя
-   * @param data Данные перемещения
+   * @param branchId ID филиала (в рамках базового класса)
+   * @param data Данные перемещения, включая fromWarehouseId и toWarehouseId
    */
-  async createScoped(fromWarehouseId: string, toWarehouseId: string, data: any): Promise<StockTransfer> {
+  async createScoped(branchId: string, data: any): Promise<StockTransfer> {
     return this.model.create({
-      data: { ...data, fromWarehouseId, toWarehouseId },
+      data: { ...data },
     });
   }
 

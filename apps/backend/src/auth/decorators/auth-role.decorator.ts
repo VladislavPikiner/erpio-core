@@ -1,7 +1,7 @@
 import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { BranchGuard } from '../auth/guards/branch.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RolesGuard } from '../guards/roles.guard';
+import { BranchGuard } from '../guards/branch.guard';
 
 /**
  * Кастомный декоратор для авторизации:

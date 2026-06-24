@@ -4,7 +4,7 @@ import { SaleRepository } from './sale.repository';
 import { WarehouseRepository } from '../warehouses/warehouse.repository';
 import { InventoryService } from '../inventory/inventory.service';
 import { CreateSaleDto } from './sale.schema';
-import { Sale, SaleItem, Product } from '@prisma/client';
+import { Sale, SaleItem, Product, Payment } from '@prisma/client';
 
 @Injectable()
 export class SaleService {
@@ -15,19 +15,17 @@ export class SaleService {
     private readonly inventoryService: InventoryService,
   ) {}
 
+  /** Создать новую продажу */
   async create(warehouseId: string, data: CreateSaleDto): Promise<Sale> {
-    // 1. Валидация: проверяем, что склад существует
-    const warehouse = await this.warehouseRepository.findById(warehouseId); // Используем findById, так как здесь не нужна строгая привязка к branchId, если сервис будет вызываться из контекста branch
+    const warehouse = await this.warehouseRepository.findById(warehouseId);
     if (!warehouse) {
       throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
     }
 
-    // 2. Предварительная проверка остатков и расчет суммы
     let totalAmount = 0;
-    const itemsToCreate = [];
+    const itemsToCreate: any[] = [];
 
     for (const item of data.items) {
-      // Находим товар и его остатки на нужном складе
       const inventory = await this.prisma.inventory.findFirst({
         where: { productId: item.productId, warehouseId: warehouseId },
         include: { product: true },
@@ -37,29 +35,30 @@ export class SaleService {
         throw new BadRequestException(`Product ${item.productId} not found in warehouse ${warehouseId}`);
       }
 
-      // Проверяем достаточность остатков
       if (inventory.quantity < item.quantity) {
-        throw new BadRequestException(`Insufficient stock for product ${item.productId} in warehouse ${warehouseId}. Available: ${inventory.quantity}, Requested: ${item.quantity}`);
+        throw new BadRequestException(`Insufficient stock for product ${item.productId}. Available: ${inventory.quantity}`);
       }
 
-      // Расчет суммы позиции (цена * количество - скидка)
-      const itemTotal = item.price * item.quantity - item.discount;
+      const itemTotal = item.price * item.quantity - (item.discount ?? 0);
       totalAmount += itemTotal;
 
       itemsToCreate.push({
-        ...item,
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+        price: item.price,
+        discount: item.discount ?? 0,
         total: itemTotal,
       });
     }
 
-    // Добавляем общую скидку к итоговой сумме
     const finalTotalAmount = totalAmount - data.discount;
+    const saleNumber = `SALE-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
-    // 3. Транзакция: создание Sale, SaleItems и списание остатков
     return this.prisma.$transaction(async (tx) => {
-      // Создаем запись Sale
       const sale = await tx.sale.create({
         data: {
+          number: saleNumber,
           warehouseId,
           customerId: data.customerId,
           total: finalTotalAmount,
@@ -67,14 +66,7 @@ export class SaleService {
           status: 'CONFIRMED',
           notes: data.notes,
           items: {
-            create: itemsToCreate.map(item => ({
-              productId: item.productId,
-              variantId: item.variantId,
-              quantity: item.quantity,
-              price: item.price,
-              discount: item.discount,
-              total: item.total,
-            })),
+            create: itemsToCreate,
           },
         },
         include: {
@@ -84,17 +76,96 @@ export class SaleService {
         },
       });
 
-      // Списываем остатки и записываем движения
       for (const item of sale.items) {
         await this.inventoryService.adjustStock(warehouseId, {
           productId: item.productId,
-          quantity: -item.quantity, // Списываем
+          quantity: -item.quantity,
           type: 'OUT',
           notes: `Sale ${sale.number}`,
         });
       }
 
       return sale;
+    });
+  }
+
+  /** Получить все продажи с фильтрацией */
+  async getAll(filter: any = {}): Promise<{ items: Sale[], total: number }> {
+    // Для упрощения берем первый доступный склад или передаем фильтр в репозиторий
+    // В реальном приложении здесь должна быть проверка branchId из контекста
+    const warehouseId = filter.warehouseId || (await this.warehouseRepository.findAll())[0]?.id;
+    
+    const [items, total] = await Promise.all([
+      this.saleRepository.findAllScoped(warehouseId, filter),
+      this.prisma.sale.count({ where: { warehouseId } })
+    ]);
+
+    return { items, total };
+  }
+
+  /** Получить одну продажу по ID */
+  async getById(id: string): Promise<Sale> {
+    // Здесь также предполагается контекстный warehouseId
+    const warehouseId = (await this.prisma.sale.findUnique({ where: { id } }))?.warehouseId;
+    if (!warehouseId) throw new NotFoundException(`Sale ${id} not found`);
+    
+    return this.saleRepository.findByIdScoped(id, warehouseId);
+  }
+
+  /** Отменить продажу (возврат товаров на склад) */
+  async cancel(id: string): Promise<Sale> {
+    return this.prisma.$transaction(async (tx) => {
+      const sale = await tx.sale.findUnique({ 
+        where: { id }, 
+        include: { items: true } 
+      });
+
+      if (!sale) throw new NotFoundException(`Sale ${id} not found`);
+      if (sale.status === 'CANCELLED') throw new BadRequestException('Sale is already cancelled');
+
+      // Возвращаем товары на склад
+      for (const item of sale.items) {
+        await this.inventoryService.adjustStock(sale.warehouseId, {
+          productId: item.productId,
+          quantity: item.quantity,
+          type: 'IN',
+          notes: `Return from cancelled sale ${sale.number}`,
+        });
+      }
+
+      return tx.sale.update({
+        where: { id },
+        data: { status: 'CANCELLED' },
+      });
+    });
+  }
+
+  /** Завершить продажу (например, после оплаты) */
+  async complete(id: string): Promise<Sale> {
+    return this.prisma.sale.update({
+      where: { id },
+      data: { status: 'COMPLETED' },
+    });
+  }
+
+  /** Добавить платеж к продаже */
+  async addPayment(data: { saleId: string, amount: number, method: string, reference?: string }): Promise<Payment> {
+    return this.prisma.payment.create({
+      data: {
+        saleId: data.saleId,
+        amount: data.amount,
+        method: data.method,
+        reference: data.reference,
+        status: 'COMPLETED',
+      },
+    });
+  }
+
+  /** Получить все платежи по продаже */
+  async getPayments(saleId: string): Promise<Payment[]> {
+    return this.prisma.payment.findMany({
+      where: { saleId },
+      orderBy: { createdAt: 'asc' },
     });
   }
 

@@ -5,7 +5,7 @@ import { CreateSaleInput, CreatePaymentInput, SaleFilterInput } from './sale.inp
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { AuthRole } from '../auth/decorators/auth-role.decorator';
+import { AuthRole, Roles } from '../auth/decorators/auth-role.decorator';
 
 @Resolver(() => SaleType)
 export class SaleResolver {
@@ -33,15 +33,18 @@ export class SaleResolver {
 
   @Mutation(() => SaleType)
   @AuthRole('ADMIN', 'MANAGER', 'CASHIER')
-  async createSale(@Args('input') input: CreateSaleInput) {
-    return this.service.create({
+  async createSale(
+    @Args('warehouseId') warehouseId: string,
+    @Args('input') input: CreateSaleInput
+  ) {
+    return this.service.create(warehouseId, {
       customerId: input.customerId ?? null,
       discount: input.discount,
       notes: input.notes ?? null,
       items: input.items.map((i) => ({
         productId: i.productId,
         quantity: i.quantity,
-        unitPrice: i.unitPrice,
+        price: i.unitPrice,
         discount: i.discount ?? 0,
       })),
     });

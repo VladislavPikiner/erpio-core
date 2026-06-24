@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { StockItem } from '@prisma/client';
+import { Inventory } from '@prisma/client';
 import { uuidv7 } from '../common/utils/uuid';
 
 interface StockFilter {
@@ -15,15 +15,15 @@ interface StockFilter {
 export class StockRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(filters: StockFilter): Promise<StockItem[]> {
+  async findAll(filters: StockFilter): Promise<Inventory[]> {
     const where: any = {};
     if (filters.warehouseId) where.warehouseId = filters.warehouseId;
     if (filters.productId) where.productId = filters.productId;
     if (filters.lowStock) {
-      where.AND = [{ quantity: { lte: this.prisma.stockItem.fields.minStock } }];
+      where.AND = [{ quantity: { lte: this.prisma.inventory.fields.reorderLevel } }];
     }
 
-    return this.prisma.stockItem.findMany({
+    return this.prisma.inventory.findMany({
       where,
       skip: filters.skip ?? 0,
       take: filters.take ?? 50,
@@ -32,29 +32,29 @@ export class StockRepository {
     });
   }
 
-  async findItem(productId: string, warehouseId: string): Promise<StockItem | null> {
-    return this.prisma.stockItem.findUnique({
+  async findItem(productId: string, warehouseId: string): Promise<Inventory | null> {
+    return this.prisma.inventory.findUnique({
       where: { productId_warehouseId: { productId, warehouseId } },
       include: { product: true, warehouse: true },
     });
   }
 
-  async adjustQuantity(productId: string, warehouseId: string, delta: number): Promise<StockItem> {
+  async adjustQuantity(productId: string, warehouseId: string, delta: number): Promise<Inventory> {
     const existing = await this.findItem(productId, warehouseId);
     if (existing) {
-      return this.prisma.stockItem.update({
+      return this.prisma.inventory.update({
         where: { id: existing.id },
         data: { quantity: existing.quantity + delta },
       });
     }
-    return this.prisma.stockItem.create({
-      data: { id: uuidv7(), productId, warehouseId, quantity: delta, minStock: 0, maxStock: 0 },
+    return this.prisma.inventory.create({
+      data: { id: uuidv7(), productId, warehouseId, quantity: delta, reorderLevel: 0 },
     });
   }
 
   async countLowStock(): Promise<number> {
-    const items = await this.prisma.stockItem.findMany({
-      where: { quantity: { lte: this.prisma.stockItem.fields.minStock } },
+    const items = await this.prisma.inventory.findMany({
+      where: { quantity: { lte: this.prisma.inventory.fields.reorderLevel } },
     });
     return items.length;
   }

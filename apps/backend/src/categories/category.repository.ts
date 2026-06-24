@@ -10,10 +10,19 @@ export class CategoryRepository extends BaseRepository<Category> {
     super(prisma.category);
   }
 
-  async findAll(includeInactive = false): Promise<Category[]> {
+  async findAll(params: {
+    includeInactive?: boolean;
+    skip?: number;
+    take?: number;
+    where?: any;
+    orderBy?: any;
+  } = {}): Promise<Category[]> {
+    const { includeInactive, skip, take, where, orderBy } = params;
     return this.model.findMany({
-      where: includeInactive ? {} : { isActive: true },
-      orderBy: { sortOrder: 'asc' },
+      where: { ...where, ...(includeInactive ? {} : { isActive: true }) },
+      orderBy: orderBy ?? { sortOrder: 'asc' },
+      skip,
+      take,
       include: {
         parent: true,
         children: { where: includeInactive ? {} : { isActive: true }, orderBy: { sortOrder: 'asc' } },
@@ -21,14 +30,16 @@ export class CategoryRepository extends BaseRepository<Category> {
     });
   }
 
-  async findById(id: string): Promise<Category | null> {
-    return this.model.findUnique({
+  async findById(id: string | number): Promise<Category> {
+    const category = await this.model.findUnique({
       where: { id },
       include: {
         parent: true,
         children: { orderBy: { sortOrder: 'asc' } },
       },
     });
+    if (!category) throw new NotFoundException(`Category with ID ${id} not found`);
+    return category;
   }
 
   async findRoots(includeInactive = false): Promise<Category[]> {

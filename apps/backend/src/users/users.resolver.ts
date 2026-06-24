@@ -22,7 +22,7 @@ import {
   ObjectType,
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { User } from '@prisma/client';
+import { User } from './user.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginatedUsersDto } from './dto/paginated-users.dto';

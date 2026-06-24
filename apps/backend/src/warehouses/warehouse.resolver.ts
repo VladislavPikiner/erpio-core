@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { WarehouseService } from './warehouse.service';
-import { Warehouse } from '@prisma/client';
+import { Warehouse } from './warehouse.model';
 import { CreateWarehouseDto } from './warehouse.schema';
 
 @Resolver(() => Warehouse)

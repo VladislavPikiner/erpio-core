@@ -21,9 +21,10 @@ export class WarehouseRepository extends BranchScopedRepository<Warehouse> {
   /**
    * Получить все склады филиала.
    * @param branchId ID филиала
+   * @param params Опции поиска
    */
-  async findAllScoped(branchId: string): Promise<Warehouse[]> {
-    return super.findAllScoped(branchId);
+  async findAllScoped(branchId: string, params: any = {}): Promise<Warehouse[]> {
+    return super.findAllScoped(branchId, params);
   }
 
   /**

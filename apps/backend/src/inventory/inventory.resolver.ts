@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { InventoryService } from './inventory.service';
-import { Inventory } from './inventory.model';
+import { Inventory } from '@prisma/client';
 import { AdjustStockDto } from './inventory.schema';
 import { AuthRole } from '../auth/decorators/auth-role.decorator';
 
