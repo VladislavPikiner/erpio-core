@@ -22,7 +22,7 @@ import {
   ObjectType,
 } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { User } from './user.model';
+import { UserType as User } from './users.type';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginatedUsersDto } from './dto/paginated-users.dto';
@@ -41,9 +41,9 @@ export class UsersResolver {
       return this.usersService.findOne({ id });
     } catch (error) {
       if (error instanceof NotFoundException) {
-        return null; // Return null if user not found as per GraphQL spec for nullable fields
+        return null;
       }
-      throw error; // Re-throw other errors
+      throw error;
     }
   }
 
@@ -58,26 +58,22 @@ export class UsersResolver {
     @Args({ name: 'cursor', type: () => String, nullable: true })
     cursor?: Prisma.UserWhereUniqueInput,
     @Args({ name: 'filter', type: () => String, nullable: true })
-    filter?: string, // Simple filter for demonstration
+    filter?: string,
   ): Promise<PaginatedUsersDto> {
     const whereClause: Prisma.UserWhereInput = {};
     if (filter) {
-      // Basic filtering by username or email. Enhance this as needed.
       whereClause.OR = [
         { username: { contains: filter, mode: 'insensitive' } },
         { email: { contains: filter, mode: 'insensitive' } },
       ];
     }
-    
-    // Add branch filtering based on user's branch if applicable (e.g., MANAGER role)
-    // For now, assuming admin can see all, or further logic is needed based on role context.
 
     return this.usersService.findAll({
       skip,
       take,
       cursor,
       where: whereClause,
-      orderBy: { createdAt: Prisma.SortOrder.desc }, // Default ordering
+      orderBy: { createdAt: Prisma.SortOrder.desc },
     });
   }
 
@@ -89,7 +85,6 @@ export class UsersResolver {
       return this.usersService.create(input);
     } catch (error) {
       if (error instanceof ConflictException) {
-        // GraphQL doesn't have a direct ConflictException, rethrow as generic error or specific GraphQL error
         throw new Error(error.message);
       } else if (error instanceof BadRequestException) {
         throw new Error(error.message);

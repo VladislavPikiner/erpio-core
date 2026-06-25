@@ -8,15 +8,14 @@ import { UsersRepository } from './users.repository';
 import { Prisma, User, UserRole } from '@prisma/client';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PaginatedUsersDto } from './dto/paginated-users.dto'; // Assuming this DTO exists
-import * as bcrypt from 'bcrypt';
+import { PaginatedUsersDto } from './dto/paginated-users.dto';
+import { hashPassword } from '../auth/utils/password.utils';
 
 @Injectable()
 export class UsersService {
   constructor(private usersRepository: UsersRepository) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    // Check if user with this username or email already exists
     const existingUser = await this.usersRepository.findOne({
       username: createUserDto.username,
     });
@@ -33,11 +32,8 @@ export class UsersService {
       }
     }
 
-    // Hash the password before saving
-    const hashedPassword = await bcrypt.hash(createUserDto.password,
-      10); // 10 is the salt rounds
+    const hashedPassword = await hashPassword(createUserDto.password);
 
-    // Ensure roles are valid enum values
     const validRoles = createUserDto.roles.map(role => UserRole[role as keyof typeof UserRole]).filter(role => role !== undefined);
     if (validRoles.length !== createUserDto.roles.length) {
       throw new BadRequestException('Invalid role provided');
@@ -49,7 +45,6 @@ export class UsersService {
       email: createUserDto.email,
       roles: validRoles,
       branch: createUserDto.branchId ? { connect: { id: createUserDto.branchId } } : undefined,
-      // Add other fields as needed, e.g., isActive = true
     };
 
     return this.usersRepository.create(userData);
@@ -63,9 +58,9 @@ export class UsersService {
     orderBy?: Prisma.UserOrderByWithRelationInput;
   }): Promise<PaginatedUsersDto> {
     const users = await this.usersRepository.findAll(params);
-    const totalCount = await this.usersRepository.count({ where: params.where }); // Assuming count method exists
+    const totalCount = await this.usersRepository.count(params.where ?? {});
 
-    return { users, totalCount }; // Return DTO with pagination info
+    return { users, totalCount };
   }
 
   async findOne(where: Prisma.UserWhereUniqueInput): Promise<User> {
@@ -82,13 +77,11 @@ export class UsersService {
   }): Promise<User> {
     const { where, data } = params;
 
-    // Check if the user exists
     await this.findOne(where);
 
-    // Handle password update separately if provided
     let hashedPassword: string | undefined;
     if (data.password) {
-      hashedPassword = await bcrypt.hash(data.password, 10);
+      hashedPassword = await hashPassword(data.password);
     }
 
     const updateData: Prisma.UserUpdateInput = {
@@ -98,7 +91,6 @@ export class UsersService {
       branch: data.branchId ? { connect: { id: data.branchId } } : (data.branchId === null ? { disconnect: true } : undefined),
     };
 
-    // Remove undefined fields to prevent Prisma errors
     Object.keys(updateData).forEach(key => {
       if (updateData[key as keyof Prisma.UserUpdateInput] === undefined) {
         delete updateData[key as keyof Prisma.UserUpdateInput];
@@ -109,13 +101,12 @@ export class UsersService {
   }
 
   async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    // Check if the user exists
     await this.findOne(where);
-    return this.usersRepository.delete({ where });
+    // FIX: Pass only the ID string as expected by UsersRepository.delete
+    return this.usersRepository.delete(where.id);
   }
 
-  // Helper method to count users, assuming it exists in repository
   private async count(where?: Prisma.UserWhereInput): Promise<number> {
-    return this.usersRepository.count({ where });
+    return this.usersRepository.count(where ?? {});
   }
 }
