@@ -1,15 +1,17 @@
-# PROJECT_STATE - MVP "Erpio Ecosystem"
+# PROJECT_STATE - erpio-core (Production-Grade Refactoring)
 
-- **Status**: Production-grade MVP ready (Backend + POS + Admin + Shop).
-- **Core Repository**: `erpio-core` (Monorepo).
-- **Current Focus**: Полировка шаблона.
+- **Current Status**: 🔴 CRITICAL (Build Broken)
+- **Core Repository**: `erpio-core`
+- **Goal**: Полное восстановление стабильности и полировка до production-grade.
 
-## Pending Tasks (Next Session)
-1. **Admin**: Интеграция серверной пагинации и поиска в `DataTable`.
-2. **Admin**: Добавление Bulk Actions (массовые операции).
-3. **Shop**: Реализация Skeleton Loaders и "Мини-корзины".
-4. **General**: Внедрение универсальной системы Toast-уведомлений в `@erpio/shared`.
+## 🚫 СТРОГИЕ ПРАВИЛА (Directive)
+1. **Никаких костылей и заплаток**. Если контракт нарушен — перепроектировать и реализовать правильно.
+2. **Приоритет типизации**. Код должен собираться с `strict: true` без `any` и подавления ошибок.
+3. **Консистентность слоев**. Репозиторий $\rightarrow$ Сервис $\rightarrow$ Резолвер должны иметь строго согласованные сигнатуры.
+4. **Никакой спешки**. Лучше потратить час на анализ, чем минуту на правку, которая сломает 10 других файлов.
 
-## Recent Actions
-- Все приложения закоммичены и запушены в `main`.
-- Инфраструктура монорепозитория настроена и линкована pnpm.
+## 🛠 План восстановления
+1. **Ревизия контрактов**: Построение карты всех вызовов в модулях `Users`, `Categories`, `Warehouses`.
+2. **Чистая реализация**: Переписывание проблемных методов в соответствии с картой.
+3. **Верификация**: `nest build` $\rightarrow$ `docker compose up`.
+4. **Полировка**: Устранение всех предупреждений и приведение к единому стандару.

@@ -1,14 +1,14 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { InventoryService } from './inventory.service';
-import { Inventory } from '@prisma/client';
+import { InventoryType } from './inventory.type';
 import { AdjustStockDto } from './inventory.schema';
 import { AuthRole } from '../auth/decorators/auth-role.decorator';
 
-@Resolver(() => Inventory)
+@Resolver(() => InventoryType)
 export class InventoryResolver {
   constructor(private readonly inventoryService: InventoryService) {}
 
-  @Query(() => Inventory, { name: 'inventory' })
+  @Query(() => InventoryType, { name: 'inventory' })
   @AuthRole('ADMIN', 'MANAGER', 'WAREHOUSE')
   async getStock(
     @Args('productId') productId: string,
@@ -17,7 +17,7 @@ export class InventoryResolver {
     return this.inventoryService.getStock(productId, warehouseId);
   }
 
-  @Mutation(() => Inventory)
+  @Mutation(() => InventoryType)
   @AuthRole('ADMIN', 'MANAGER', 'WAREHOUSE')
   async adjustStock(
     @Args('warehouseId') warehouseId: string,

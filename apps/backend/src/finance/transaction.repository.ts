@@ -26,9 +26,8 @@ export class TransactionRepository {
           accountId: data.accountId,
           type: data.type,
           amount: data.amount,
-          description: data.description ?? null,
-          referenceType: data.referenceType ?? null,
-          referenceId: data.referenceId ?? null,
+          notes: data.description ?? null, // исправлено: description -> notes
+          // referenceType и referenceId отсутствуют в схеме Transaction
         },
       }),
       this.prisma.account.update({
@@ -46,7 +45,7 @@ export class TransactionRepository {
 
     return this.prisma.transaction.findMany({
       where,
-      orderBy: { date: 'desc' },
+      orderBy: { createdAt: 'desc' }, // исправлено: date -> createdAt
       take: limit,
       include: { account: true },
     });

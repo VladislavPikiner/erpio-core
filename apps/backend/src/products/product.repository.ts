@@ -93,4 +93,6 @@ export class ProductRepository extends BaseRepository<Product> {
         },
       };
     }
+    return where;
+  }
 }

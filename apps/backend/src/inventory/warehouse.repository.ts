@@ -7,6 +7,7 @@ interface CreateWarehouseData {
   name: string;
   address?: string | null;
   isActive?: boolean;
+  branchId: string;
 }
 
 interface UpdateWarehouseData {
@@ -29,7 +30,13 @@ export class WarehouseRepository {
 
   async create(data: CreateWarehouseData): Promise<Warehouse> {
     return this.prisma.warehouse.create({
-      data: { id: uuidv7(), ...data },
+      data: { 
+        id: uuidv7(), 
+        name: data.name,
+        address: data.address,
+        isActive: data.isActive,
+        branch: { connect: { id: data.branchId } }
+      },
     });
   }
 

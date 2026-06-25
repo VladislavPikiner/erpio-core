@@ -39,7 +39,7 @@ export class CategoryService {
   }
 
   async findAll(includeInactive = false): Promise<Category[]> {
-    return this.categoryRepository.findAll(includeInactive);
+    return this.categoryRepository.findAll({ includeInactive });
   }
 
   async findById(id: string): Promise<Category> {
@@ -48,6 +48,10 @@ export class CategoryService {
       throw new NotFoundException(`Category with ID ${id} not found`);
     }
     return category;
+  }
+
+  async getRoots(includeInactive = false): Promise<Category[]> {
+    return this.categoryRepository.findRoots(includeInactive);
   }
 
   async getTree(): Promise<Category[]> {

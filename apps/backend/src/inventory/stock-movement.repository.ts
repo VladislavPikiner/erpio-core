@@ -9,35 +9,55 @@ export class StockMovementRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateStockMovementDto & { userId?: string }): Promise<StockMovement> {
-    const quantity = data.type === 'OUT' || data.type === 'TRANSFER'
+    // В схеме StockMovement нет полей userId, productId и warehouseId.
+    // Все данные о продукте и складе содержатся в связанном Inventory.
+    
+    const quantity = (data.type === 'OUT' || data.type === 'TRANSFER_OUT')
       ? -Math.abs(data.quantity)
       : Math.abs(data.quantity);
 
     return this.prisma.stockMovement.create({
       data: {
         id: uuidv7(),
-        productId: data.productId,
-        warehouseId: data.warehouseId,
-        type: data.type as any,
+        inventoryId: data.inventoryId, // используем inventoryId из DTO
         quantity,
-        reference: data.reference ?? null,
+        type: data.type,
+        reference: data.referenceType ? `${data.referenceType}:${data.referenceId}` : null,
         notes: data.notes ?? null,
-        userId: data.userId ?? null,
       },
-      include: { product: true, warehouse: true },
+      include: { 
+        inventory: { 
+          include: { 
+            product: true, 
+            warehouse: true 
+          } 
+        } 
+      },
     });
   }
 
   async findAll(productId?: string, warehouseId?: string, limit = 50): Promise<StockMovement[]> {
     const where: any = {};
-    if (productId) where.productId = productId;
-    if (warehouseId) where.warehouseId = warehouseId;
+    
+    if (productId || warehouseId) {
+      where.inventory = {
+        productId: productId,
+        warehouseId: warehouseId,
+      };
+    }
 
     return this.prisma.stockMovement.findMany({
       where,
       orderBy: { createdAt: 'desc' },
       take: limit,
-      include: { product: true, warehouse: true },
+      include: { 
+        inventory: { 
+          include: { 
+            product: true, 
+            warehouse: true 
+          } 
+        } 
+      },
     });
   }
 }

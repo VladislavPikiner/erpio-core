@@ -17,7 +17,7 @@ export class CategoryResolver {
   async categories(
     @Args('includeInactive', { nullable: true, defaultValue: false }) includeInactive?: boolean,
   ) {
-    return this.service.getAll(includeInactive);
+    return this.service.findAll(includeInactive);
   }
 
   @Query(() => [CategoryType])
@@ -37,7 +37,7 @@ export class CategoryResolver {
   @Query(() => CategoryType)
   @Roles('ADMIN', 'MANAGER', 'CASHIER', 'WAREHOUSE')
   async category(@Args('id') id: string) {
-    return this.service.getById(id);
+    return this.service.findById(id);
   }
 
   @Mutation(() => CategoryType)
