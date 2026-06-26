@@ -35,12 +35,12 @@ export class SaleResolver {
     @Args('input') input: CreateSaleInput
   ) {
     return this.service.create(warehouseId, {
-      customerId: input.customerId ?? null,
+      customerId: input.customerId,
       discount: input.discount ?? 0,
-      notes: input.notes ?? null,
+      notes: input.notes,
       items: input.items.map((i) => ({
         productId: i.productId,
-        variantId: i.variantId ?? undefined,
+        variantId: i.variantId,
         quantity: i.quantity,
         price: i.unitPrice,
         discount: i.discount ?? 0,
@@ -67,7 +67,7 @@ export class SaleResolver {
       saleId: input.saleId,
       amount: input.amount,
       method: input.method as 'CASH' | 'CARD' | 'TRANSFER',
-      reference: input.reference ?? null,
+      reference: input.reference,
     });
   }
 

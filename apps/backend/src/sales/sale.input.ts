@@ -5,6 +5,9 @@ export class CreateSaleItemInput {
   @Field()
   productId!: string;
 
+  @Field({ nullable: true })
+  variantId?: string;
+
   @Field(() => Int)
   quantity!: number;
 

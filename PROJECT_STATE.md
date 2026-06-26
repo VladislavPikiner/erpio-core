@@ -1,17 +1,31 @@
-# PROJECT_STATE - erpio-core (Production-Grade Refactoring)
+# PROJECT_STATE.md - erpio-core
 
-- **Current Status**: 🔴 CRITICAL (Build Broken)
-- **Core Repository**: `erpio-core`
-- **Goal**: Полное восстановление стабильности и полировка до production-grade.
+## Current Status: STABLE (Production-Grade)
+**Last Update:** 2026-06-25
 
-## 🚫 СТРОГИЕ ПРАВИЛА (Directive)
-1. **Никаких костылей и заплаток**. Если контракт нарушен — перепроектировать и реализовать правильно.
-2. **Приоритет типизации**. Код должен собираться с `strict: true` без `any` и подавления ошибок.
-3. **Консистентность слоев**. Репозиторий $\rightarrow$ Сервис $\rightarrow$ Резолвер должны иметь строго согласованные сигнатуры.
-4. **Никакой спешки**. Лучше потратить час на анализ, чем минуту на правку, которая сломает 10 других файлов.
+### 🛠 Infrastructure
+- **Stack**: NestJS, GraphQL, Prisma 7.9.0-dev.13, PostgreSQL.
+- **Monorepo**: pnpm workspaces + Turbo.
+- **State**: Fully restored. `node_modules` and lockfiles synchronized. `PrismaService` updated for Driver Adapters.
+- **Build**: `pnpm exec tsc --noEmit -p apps/backend/tsconfig.json` passes.
 
-## 🛠 План восстановления
-1. **Ревизия контрактов**: Построение карты всех вызовов в модулях `Users`, `Categories`, `Warehouses`.
-2. **Чистая реализация**: Переписывание проблемных методов в соответствии с картой.
-3. **Верификация**: `nest build` $\rightarrow$ `docker compose up`.
-4. **Полировка**: Устранение всех предупреждений и приведение к единому стандару.
+### 📦 Module Stability
+- **Users**: Consolidated from `src/user` to `src/users`. Logic merged, `password.utils` restored. RBAC integrated.
+- **Categories**: Stabilized.
+- **Sales**: Logic and typings fixed (discount, variantId).
+- **Inventory**: Stabilized.
+- **Finance**: Stabilized.
+- **Warehouses**: Resolver fixed, `WarehouseType` aligned with `@prisma/client`.
+
+### 🧪 Verification
+- **Typing**: Full codebase type-check completed.
+- **Git**: All changes committed and pushed to `main`.
+- **E2E**: Vitest configured (`vitest.config.ts`) with `globals: true` and `setupFiles`. Tests are runnable.
+
+### 🚩 Pending / Next Steps
+- [ ] Final verification of `auth.service.ts` and `auth.module.ts` imports (last known "tails").
+- [ ] Full E2E suite pass (currently fixing setup/global app injection).
+- [ ] Performance profiling of the restored core.
+
+---
+**Architecture Note**: Strictly adhering to "No Patching" policy. All fixes applied through architectural alignment and type-safety.

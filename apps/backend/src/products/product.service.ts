@@ -79,9 +79,9 @@ export class ProductService {
   // ═══════════════════════════════════════
 
   /** Добавить вариант к товару. */
-  async addVariant(productId: string, data: CreateVariantData): Promise<ProductVariant> {
+  async addVariant(productId: string, data: Omit<CreateVariantData, 'productId'>): Promise<ProductVariant> {
     await this.getById(productId);
-    return this.variantRepo.create(productId, data);
+    return this.variantRepo.create({ ...data, productId });
   }
 
   /** Обновить вариант. */

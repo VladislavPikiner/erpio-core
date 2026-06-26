@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from 'react';
 import { apiFetch, Product } from '@erpio/shared';
 
@@ -20,5 +21,5 @@ export function useProducts() {
     fetchProducts();
   }, []);
 
-  return { products, isLoading, error };
+  return { products, isLoading, error };}
 }

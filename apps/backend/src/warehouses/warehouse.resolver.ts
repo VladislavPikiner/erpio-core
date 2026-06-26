@@ -1,18 +1,18 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { WarehouseService } from './warehouse.service';
-import { Warehouse } from '@prisma/client';
+import { WarehouseType } from './warehouse.type';
 import { CreateWarehouseDto } from './warehouse.schema';
 
-@Resolver(() => Warehouse)
+@Resolver(() => WarehouseType)
 export class WarehouseResolver {
   constructor(private readonly warehouseService: WarehouseService) {}
 
-  @Query(() => [Warehouse])
+  @Query(() => [WarehouseType])
   async warehouses(@Args('branchId') branchId: string) {
     return this.warehouseService.findAll(branchId);
   }
 
-  @Mutation(() => Warehouse)
+  @Mutation(() => WarehouseType)
   async createWarehouse(
     @Args('branchId') branchId: string,
     @Args('data') data: CreateWarehouseDto,

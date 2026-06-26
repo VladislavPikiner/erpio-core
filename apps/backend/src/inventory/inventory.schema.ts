@@ -9,4 +9,11 @@ export const CreateStockMovementDto = z.object({
   notes: z.string().optional(), // Дополнительные заметки
 });
 
-export type CreateStockMovementDto = z.infer<typeof CreateStockMovementDto>;
+export const AdjustStockDto = z.object({
+  productId: z.string().uuid(),
+  quantity: z.number().int(),
+  type: z.enum(['IN', 'OUT', 'ADJUSTMENT', 'TRANSFER_IN', 'TRANSFER_OUT']), // Добавил недостающие типы
+  notes: z.string().optional(),
+});
+
+export type AdjustStockDto = z.infer<typeof AdjustStockDto>;

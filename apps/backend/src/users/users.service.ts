@@ -101,9 +101,8 @@ export class UsersService {
   }
 
   async remove(where: Prisma.UserWhereUniqueInput): Promise<User> {
-    await this.findOne(where);
-    // FIX: Pass only the ID string as expected by UsersRepository.delete
-    return this.usersRepository.delete(where.id);
+    const user = await this.findOne(where);
+    return this.usersRepository.delete(user.id);
   }
 
   private async count(where?: Prisma.UserWhereInput): Promise<number> {

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { z } from 'zod';
 import { PrismaService } from '../prisma/prisma.service';
 import { StockMovement } from '@prisma/client';
 import { uuidv7 } from '../common/utils/uuid';
@@ -8,7 +9,7 @@ import { CreateStockMovementDto } from './inventory.schema';
 export class StockMovementRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateStockMovementDto & { userId?: string }): Promise<StockMovement> {
+  async create(data: z.infer<typeof CreateStockMovementDto> & { userId?: string }): Promise<StockMovement> {
     // В схеме StockMovement нет полей userId, productId и warehouseId.
     // Все данные о продукте и складе содержатся в связанном Inventory.
     

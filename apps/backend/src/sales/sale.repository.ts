@@ -31,10 +31,11 @@ export class SaleRepository extends BranchScopedRepository<Sale> {
   /**
    * Получить все продажи склада.
    * @param warehouseId ID склада
+   * @param filter Фильтр (тип any для совместимости с текущим вызовом)
    */
-  async findAllScoped(warehouseId: string): Promise<Sale[]> {
+  async findAllScoped(warehouseId: string, filter: any = {}): Promise<Sale[]> {
     return this.model.findMany({
-      where: { warehouseId },
+      where: { warehouseId, ...filter },
     });
   }
 

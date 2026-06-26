@@ -4,7 +4,8 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
-import { CreateUserSchema } from '../user/user.schema';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { CreateUserSchema } from '../users/users.schema';
 
 @Controller('auth')
 export class AuthController {

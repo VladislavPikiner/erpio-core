@@ -171,6 +171,8 @@ model Inventory {
   warehouseId String
   warehouse   Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   movements   StockMovement[]
+
+  @@unique([productId, warehouseId])
 }
 
 model StockMovement {

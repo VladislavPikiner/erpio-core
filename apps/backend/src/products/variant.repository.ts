@@ -2,7 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../common/repositories/base.repository';
 import { PrismaService } from '../prisma/prisma.service';
 import { ProductVariant } from '@prisma/client';
-import { CreateVariantData, UpdateVariantData } from './variant.schema';
+
+export interface CreateVariantData {
+  productId: string;
+  name: string;
+  sku: string;
+  price: number;
+  cost?: number;
+  attributes?: string;
+}
+
+export interface UpdateVariantData {
+  name?: string;
+  sku?: string;
+  price?: number;
+  cost?: number;
+  attributes?: string;
+  isActive?: boolean;
+}
 
 @Injectable()
 export class VariantRepository extends BaseRepository<ProductVariant> {
@@ -18,7 +35,7 @@ export class VariantRepository extends BaseRepository<ProductVariant> {
   }
 
   async create(data: CreateVariantData): Promise<ProductVariant> {
-    return super.create({ productId: data.productId, ...data, attributes: data.attributes ?? {} });
+    return super.create({ ...data, attributes: data.attributes ?? '{}' });
   }
 
   async update(id: string, data: UpdateVariantData): Promise<ProductVariant> {

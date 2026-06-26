@@ -43,7 +43,7 @@ export class SaleService {
       totalAmount += itemTotal;
 
       itemsToCreate.push({
-        productId: item.productId,
+        productId: item.productId ?? '',
         variantId: item.variantId,
         quantity: item.quantity,
         price: item.price,
@@ -78,7 +78,7 @@ export class SaleService {
 
       for (const item of sale.items) {
         await this.inventoryService.adjustStock(warehouseId, {
-          productId: item.productId,
+          productId: item.productId ?? '',
           quantity: -item.quantity,
           type: 'OUT',
           notes: `Sale ${sale.number}`,
@@ -91,8 +91,6 @@ export class SaleService {
 
   /** Получить все продажи с фильтрацией */
   async getAll(filter: any = {}): Promise<{ items: Sale[], total: number }> {
-    // Для упрощения берем первый доступный склад или передаем фильтр в репозиторий
-    // В реальном приложении здесь должна быть проверка branchId из контекста
     const warehouseId = filter.warehouseId || (await this.warehouseRepository.findAll())[0]?.id;
     
     const [items, total] = await Promise.all([
@@ -105,7 +103,6 @@ export class SaleService {
 
   /** Получить одну продажу по ID */
   async getById(id: string): Promise<Sale> {
-    // Здесь также предполагается контекстный warehouseId
     const warehouseId = (await this.prisma.sale.findUnique({ where: { id } }))?.warehouseId;
     if (!warehouseId) throw new NotFoundException(`Sale ${id} not found`);
     
@@ -123,10 +120,9 @@ export class SaleService {
       if (!sale) throw new NotFoundException(`Sale ${id} not found`);
       if (sale.status === 'CANCELLED') throw new BadRequestException('Sale is already cancelled');
 
-      // Возвращаем товары на склад
       for (const item of sale.items) {
         await this.inventoryService.adjustStock(sale.warehouseId, {
-          productId: item.productId,
+          productId: item.productId ?? '',
           quantity: item.quantity,
           type: 'IN',
           notes: `Return from cancelled sale ${sale.number}`,
