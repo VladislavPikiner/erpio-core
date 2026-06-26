@@ -2,60 +2,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
-import { Input } from "../components/ui/input";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { useProducts, Product, useCart } from '@/shared';
+import { Card, CardHeader, CardTitle, CardContent } from "@repo/ui";
+import { Input } from "@repo/ui";
+import { useProducts, Product, useCart, ToastProvider, useToast, ErrorBoundary } from '@erpio/shared';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
-import { DataTable } from "../components/ui/data-table";
-import { LayoutDashboard, Package, TrendingUp, ShoppingCart } from 'lucide-react';
-import { ProductFilters } from '../components/ProductFilters'; // Импорт фильтров
-import { SlideOverCart } from '../components/ui/SlideOverCart'; // Импорт корзины
-import { ToastProvider, useToast, ErrorBoundary } from '@/shared'; // Импорт ToastProvider и useToast
-
-// Mock data for the chart
-const chartData = [
-  { name: 'Пн', sales: 4000 },
-  { name: 'Вт', sales: 3000 },
-  { name: 'Ср', sales: 2000 },
-  { name: 'Чт', sales: 2780 },
-  { name: 'Пт', sales: 1890 },
-  { name: 'Сб', sales: 2390 },
-  { name: 'Вс', sales: 3390 },
-];
-
-const productColumns: ColumnDef<Product>[] = [
-  {
-    header: 'Название',
-    accessorKey: 'name',
-  },
-  {
-    header: 'SKU',
-    accessorKey: 'sku',
-  },
-  {
-    header: 'Цена',
-    accessorKey: 'price',
-    cell: ({ row }) => {
-      const price = row.getValue('price') as number;
-      return `${price.toFixed(2)} ₽`;
-    },
-  },
-  {
-    header: 'Действия',
-    cell: ({ row }) => {
-      const product = row.original;
-      return (
-        <button 
-          onClick={(e) => { e.stopPropagation(); addToCart(product); } } 
-          className="px-3 py-1 bg-emerald-500 text-white rounded text-xs hover:bg-emerald-600"
-        >
-          В корзину
-        </button>
-      );
-    },
-  },
-];
+import { DataTable } from "@repo/ui";
+import { ShoppingCart } from 'lucide-react';
+import { ProductFilters } from '../../components/ProductFilters'; 
+import { SlideOverCart } from '../../components/ui/SlideOverCart';
 
 export default function ProductsPage() {
   const {
@@ -63,7 +17,6 @@ export default function ProductsPage() {
     isLoading,
     error,
     pagination,
-    pageCount,
     setPage,
     setSearch,
     setCategory,
@@ -74,18 +27,6 @@ export default function ProductsPage() {
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { items: cartItems, addItem, updateQuantity, removeItem } = useCart();
-
-  const handlePaginationChange = (updater: (old: PaginationState) => PaginationState) => {
-    const newState = typeof updater === 'function' ? updater({
-      pageIndex: pagination.page,
-      pageSize: pagination.limit
-    }) : updater;
-    setPage(newState.pageIndex);
-  };
-
-  const handleFilterChange = () => {
-    setPage(0); // Сбрасываем на первую страницу при смене фильтра
-  };
 
   const addToCart = (product: Product) => {
     addItem(product);
@@ -107,9 +48,12 @@ export default function ProductsPage() {
     setIsCartOpen(false);
   };
 
+  const handleFilterChange = () => {
+    setPage(0); 
+  };
+
   return (
     <ToastProvider>
-      <ErrorBoundary>
         <div className="flex p-8 max-w-6xl mx-auto">
           <ProductFilters 
             onCategoryChange={(cat) => {
@@ -152,15 +96,23 @@ export default function ProductsPage() {
             {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {[...Array(3)].map((_, index) => (
-                  <SkeletonLoader key={index} />
+                  <div key={index} className="h-40 bg-zinc-200 rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : error ? (
-              <p className="text-center py-20 text-red-500">{error}</p>
+              <p className="text-center py-20 text-red-500">{typeof error === 'string' ? error : (error as Error).message}</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {products.map((product) => (
-                  <ProductCard key={product.id} product={product} onAddToCart={addToCart} />
+                  <Card key={product.id} className="bg-white p-4 rounded-lg shadow">
+                    <CardHeader>
+                        <CardTitle>{product.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-zinc-500">{product.price} ₽</p>
+                        <button onClick={() => addToCart(product)} className="mt-4 px-4 py-2 bg-emerald-600 text-white rounded">Добавить в корзину</button>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
@@ -174,7 +126,6 @@ export default function ProductsPage() {
           onUpdateQuantity={updateCartQuantity}
           onCheckout={checkout}
         />
-      </ErrorBoundary>
-    </ToastProvider>
+      </ToastProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { Product } from '@erpio/shared';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 
 interface ProductCardProps {
   product: Product;

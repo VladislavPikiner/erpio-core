@@ -5,7 +5,10 @@ export const ProductSchema = z.object({
   name: z.string(),
   price: z.number(),
   sku: z.string(),
+  imageUrl: z.string().optional(),
 });
+
+export type Product = z.infer<typeof ProductSchema>;
 
 
 export const UserSessionSchema = z.object({
@@ -23,3 +26,15 @@ export const PaginatedResponseSchema = (dataSchema: z.ZodTypeAny) => z.object({
   total: z.number()
 });
 
+
+export const PaginationParamsSchema = z.object({
+  page: z.number(),
+  limit: z.number(),
+});
+
+export type PaginationParams = z.infer<typeof PaginationParamsSchema>;
+
+export type PaginatedResponse<T> = {
+  data: T[];
+  total: number;
+};

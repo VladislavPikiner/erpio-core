@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    ".": "./src/index.tsx",
     "./*": "./src/*.tsx"
   },
   "scripts": {
@@ -21,6 +22,8 @@
   },
   "dependencies": {
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "@tanstack/react-table": "^8.20.5",
+    "@base-ui/react": "latest"
   }
 }

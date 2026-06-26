@@ -1,7 +1,9 @@
+"use client";
 import { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useQuery } from '@tanstack/react-query';
-import { apiFetch, Product, PaginationParams, PaginatedResponse } from '../api';
+import { apiFetch } from '../api';
+import { Product, PaginationParams, PaginatedResponse } from '../schemas';
 import { ProductSchema, PaginatedResponseSchema } from '../schemas';
 
 // Добавляем category и price к PaginationParams

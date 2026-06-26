@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { useCart } from '@erpio/shared';
 import { Trash2 } from 'lucide-react';
 

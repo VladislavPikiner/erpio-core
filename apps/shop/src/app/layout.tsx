@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthGuard } from "@/components/AuthGuard"; // Предполагается, что AuthGuard будет в shared
+import { AuthGuard } from "@/components/AuthGuard";
 import QueryProvider from "@/components/providers/QueryProvider";
 
 export const metadata: Metadata = {

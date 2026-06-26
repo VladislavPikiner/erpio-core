@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@repo/ui';
 import { useCart, apiFetch } from '@erpio/shared';
 import { CheckCircle2, CreditCard, Truck } from 'lucide-react';
 import { useRouter } from 'next/navigation';

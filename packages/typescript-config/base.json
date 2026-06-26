@@ -11,6 +11,10 @@
     "moduleDetection": "force",
     "moduleResolution": "NodeNext",
     "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@erpio/shared/*": ["../../packages/shared/src/*"],
+      "@repo/ui/*": ["../../packages/ui/src/*"]
+    },
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,

@@ -1,9 +1,17 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
-  // Здесь будут настройки специфичные для Shop, если понадобятся
-  // Пока оставляем минимальным, как в POS
-  transpilePackages: ["@erpio/shared"],
+  transpilePackages: ['@repo/ui', '@erpio/shared'],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@/*': path.resolve(__dirname, 'src'),
+      '@erpio/shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@repo/ui': path.resolve(__dirname, '../../packages/ui/src'),
+    };
+    return config;
+  },
 };
 
 export default nextConfig;

@@ -1,12 +1,12 @@
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+"use client";
 
-
+import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
 import { store } from '../lib/store';
 
 const apolloClient = new ApolloClient({
-  uri: 'http://localhost:3000/graphql',
+  link: new HttpLink({ uri: 'http://localhost:3000/graphql' }),
   cache: new InMemoryCache(),
 });
 

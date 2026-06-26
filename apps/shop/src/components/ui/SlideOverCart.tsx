@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react'; // Для кнопки закрытия
-import { Product } from '@/shared'; // Предполагаемый тип товара
+import { Product } from '@erpio/shared'; // Предполагаемый тип товара
 
 interface CartItem extends Product {
   quantity: number;

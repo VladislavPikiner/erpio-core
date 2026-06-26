@@ -1,8 +1,6 @@
-
-
 import Link from 'next/link';
-import { Button } from '@/components/ui/button'; // Используем Shadcn Button
-import { useProducts } from '@/hooks/useProducts'; // Хук для получения товаров
+import { Button } from '@repo/ui';
+import { useProducts } from '@erpio/shared';
 import { ShoppingCart, Package, User } from 'lucide-react';
 
 // TODO: Добавить AuthGuard, если пользователь должен быть авторизован для просмотра страницы
@@ -17,41 +15,31 @@ export default function LandingPage() {
         <Link href="/" className="text-2xl font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
           Erpio Shop
         </Link>
-        <nav className="flex items-center space-x-6">
-          <Link href="/products" className="text-zinc-700 hover:text-emerald-600 transition-colors">
-            Каталог
+        <nav className="flex gap-4">
+          <Link href="/products" className="flex items-center gap-2 text-zinc-600 hover:text-emerald-600">
+            <Package size={20} />
+            Товары
           </Link>
-          <Link href="/cart" className="text-zinc-700 hover:text-emerald-600 transition-colors flex items-center gap-1">
-            <ShoppingCart className="h-5 w-5" /> Корзина
-          </Link>
-          <Link href="/login" className="text-zinc-700 hover:text-emerald-600 transition-colors flex items-center gap-1">
-            <User className="h-5 w-5" /> Войти
+          <Link href="/cart" className="flex items-center gap-2 text-zinc-600 hover:text-emerald-600">
+            <ShoppingCart size={20} />
+            Корзина
           </Link>
         </nav>
       </header>
-
-      <main className="flex-grow flex flex-col items-center justify-center text-center p-8">
-        <h1 className="text-5xl font-extrabold mb-4 text-zinc-900 max-w-3xl leading-tight">
-          Лучшие товары <span className="text-emerald-600">для вас</span>
-        </h1>
-        <p className="text-lg text-zinc-600 mb-8 max-w-2xl">
-          Откройте для себя наш широкий ассортимент продукции, легко оформляйте заказы и управляйте своей программой лояльности.
-        </p>
-        <div className="flex space-x-4">
-          <Link href="/products">
-            <Button className="accent-button text-lg px-8 py-4">Перейти в каталог</Button>
-          </Link>
-          <Link href="/login">
-            <Button variant="outline" className="text-lg px-8 py-4 border-emerald-600 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700">
-              Личный кабинет
-            </Button>
-          </Link>
+      <main className="flex-1 p-6">
+        <h1 className="text-4xl font-bold mb-8">Добро пожаловать в наш магазин</h1>
+        {isLoading && <p>Загрузка товаров...</p>}
+        {error && <p className="text-red-500">{typeof error === 'string' ? error : error.message || 'Произошла ошибка'}</p>}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {products.map((product) => (
+            <div key={product.id} className="bg-white p-4 rounded-lg shadow">
+              <h2 className="text-xl font-semibold">{product.name}</h2>
+              <p className="text-zinc-500">{product.price} ₽</p>
+              <Button className="mt-4">Добавить в корзину</Button>
+            </div>
+          ))}
         </div>
       </main>
-
-      <footer className="p-6 border-t border-zinc-200 mt-auto text-center text-zinc-500">
-        © 2026 Erpio Shop. Все права защищены.
-      </footer>
     </div>
   );
 }
