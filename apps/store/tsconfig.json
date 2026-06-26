@@ -10,7 +10,8 @@
       "@erpio/shared/*": ["../../packages/shared/src/*"]
     },
     "jsx": "preserve",
-    "moduleResolution": "NodeNext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "allowJs": true,
     "plugins": [
