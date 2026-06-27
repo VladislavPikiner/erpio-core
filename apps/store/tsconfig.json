@@ -1,14 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@repo/ui": ["../../packages/ui/src/index.tsx"],
-      "@repo/ui/*": ["../../packages/ui/src/*"],
-      "@erpio/shared": ["../../packages/shared/src/index.ts"],
-      "@erpio/shared/*": ["../../packages/shared/src/*"]
-    },
     "jsx": "preserve",
     "module": "esnext",
     "moduleResolution": "bundler",

@@ -34,6 +34,14 @@ export const PaginationParamsSchema = z.object({
 
 export type PaginationParams = z.infer<typeof PaginationParamsSchema>;
 
+export const ExtendedPaginationParamsSchema = PaginationParamsSchema.extend({
+  search: z.string().optional(),
+  category: z.string().optional(),
+  priceRange: z.object({ min: z.number(), max: z.number() }).optional(),
+});
+
+export type ExtendedPaginationParams = z.infer<typeof ExtendedPaginationParamsSchema>;
+
 export type PaginatedResponse<T> = {
   data: T[];
   total: number;

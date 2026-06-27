@@ -1,16 +1,9 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { z } from 'zod';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '../api';
-import { Product, PaginationParams, PaginatedResponse } from '../schemas';
+import { Product, PaginatedResponse, ExtendedPaginationParams } from '../schemas';
 import { ProductSchema, PaginatedResponseSchema } from '../schemas';
-
-// Добавляем category и price к PaginationParams
-interface ExtendedPaginationParams extends PaginationParams {
-  category?: string;
-  priceRange?: { min: number; max: number };
-}
 
 export function useProducts() {
   const [pagination, setPagination] = useState<ExtendedPaginationParams>({ page: 0, limit: 10 });
@@ -31,7 +24,7 @@ export function useProducts() {
       queryParams.append('maxPrice', pagination.priceRange.max.toString());
     }
 
-    const response = await apiFetch<any>(`/products?${queryParams.toString()}`);
+    const response = await apiFetch<PaginatedResponse<Product>>(`/products?${queryParams.toString()}`);
     const validatedData = PaginatedResponseSchema(ProductSchema).parse(response);
     return validatedData; // Возвращаем данные для useQuery
   };
@@ -52,23 +45,23 @@ export function useProducts() {
   const pageCount = Math.ceil(totalProducts / pagination.limit);
 
   const setSearch = (search: string) => {
-    setPagination({ ...pagination, search, page: 0 });
+    setPagination((prev) => ({ ...prev, search, page: 0 }));
   };
 
   const setCategory = (category: string) => {
-    setPagination({ ...pagination, category, page: 0 });
+    setPagination((prev) => ({ ...prev, category, page: 0 }));
   };
 
   const setPriceRange = (range: { min: number; max: number }) => {
-    setPagination({ ...pagination, priceRange: range, page: 0 });
+    setPagination((prev) => ({ ...prev, priceRange: range, page: 0 }));
   };
 
   const setPage = (page: number) => {
-    setPagination({ ...pagination, page });
+    setPagination((prev) => ({ ...prev, page }));
   };
 
   const setLimit = (limit: number) => {
-    setPagination({ ...pagination, limit, page: 0 });
+    setPagination((prev) => ({ ...prev, limit, page: 0 }));
   };
 
   return { 
