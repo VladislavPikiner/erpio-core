@@ -2,8 +2,15 @@
   "extends": "../../packages/typescript-config/base.json",
   "compilerOptions": {
     "jsx": "preserve",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "noEmit": true,
-    "plugins": [{ "name": "next" }]
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "allowJs": true
   },
   "include": [
     "**/*.ts",
@@ -12,7 +19,14 @@
     ".next/types/**/*.ts"
   ],
   "references": [
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/ui" }
+    {
+      "path": "../../packages/shared"
+    },
+    {
+      "path": "../../packages/ui"
+    }
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
