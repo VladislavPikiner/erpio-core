@@ -3,11 +3,21 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@repo/ui": ["../../packages/ui/src/index.tsx"],
-      "@repo/ui/*": ["../../packages/ui/src/*"],
-      "@erpio/shared": ["../../packages/shared/src/index.ts"],
-      "@erpio/shared/*": ["../../packages/shared/src/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@repo/ui": [
+        "../../packages/ui/src/index.tsx"
+      ],
+      "@repo/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@erpio/shared": [
+        "../../packages/shared/src/index.ts"
+      ],
+      "@erpio/shared/*": [
+        "../../packages/shared/src/*"
+      ]
     },
     "jsx": "preserve",
     "moduleResolution": "bundler",
@@ -24,5 +34,8 @@
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

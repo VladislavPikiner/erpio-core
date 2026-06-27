@@ -1,4 +1,32 @@
 {
   "extends": "../../packages/typescript-config/nextjs.json",
-  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@erpio/shared": [
+        "../../packages/shared/src/index.ts"
+      ],
+      "@erpio/shared/*": [
+        "../../packages/shared/src/*"
+      ],
+      "@repo/ui": [
+        "../../packages/ui/src/index.tsx"
+      ],
+      "@repo/ui/*": [
+        "../../packages/ui/src/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
