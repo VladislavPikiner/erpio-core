@@ -1,32 +1,4 @@
 {
-  "extends": "../../packages/typescript-config/base.json",
-  "compilerOptions": {
-    "jsx": "preserve",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "noEmit": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "allowJs": true
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "references": [
-    {
-      "path": "../../packages/shared"
-    },
-    {
-      "path": "../../packages/ui"
-    }
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "extends": "../../packages/typescript-config/nextjs.json",
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"]
 }
