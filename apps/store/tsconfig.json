@@ -1,21 +1,18 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../packages/typescript-config/base.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "module": "esnext",
-    "moduleResolution": "bundler",
     "noEmit": true,
-    "allowJs": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "plugins": [{ "name": "next" }]
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "next-env.d.ts",
     ".next/types/**/*.ts"
+  ],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/ui" }
   ]
 }
