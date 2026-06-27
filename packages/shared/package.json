@@ -13,7 +13,8 @@
     }
   },
   "scripts": {
-    "build": "tsc --build"
+    "build": "tsc --build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.0",

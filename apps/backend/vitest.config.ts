@@ -4,11 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['../../test/e2e/setup.ts'],
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
-    },
+    // Для юнит-тестов не нужен E2E setup
+    // Если понадобится для интеграционных, добавим позже
   },
 });
