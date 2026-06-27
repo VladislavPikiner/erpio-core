@@ -1,0 +1,42 @@
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
+export interface CreateSaleItemData {
+  productId: string;
+  quantity: number;
+  price: number;
+  discount?: number;
+}
+
+export function computeItemTotal(item: CreateSaleItemData): number {
+  return item.price * item.quantity - (item.discount ?? 0);
+}
+
+export function computeSubtotal(items: CreateSaleItemData[]): number {
+  return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+}
+
+@Injectable()
+export class SaleItemRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  createMany(saleId: string, items: CreateSaleItemData[]) {
+    return this.prisma.saleItem.createMany({
+      data: items.map((i) => ({
+        saleId,
+        productId: i.productId,
+        quantity: i.quantity,
+        price: i.price,
+        discount: i.discount ?? 0,
+        total: computeItemTotal(i),
+      })),
+    });
+  }
+
+  findBySaleId(saleId: string, includeProduct = false) {
+    return this.prisma.saleItem.findMany({
+      where: { saleId },
+      include: includeProduct ? { product: { include: { category: true } } } : undefined,
+    });
+  }
+}

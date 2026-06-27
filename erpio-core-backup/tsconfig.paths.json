@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["packages/shared/src/*"],
+      "@ui/*": ["packages/ui/src/*"],
+      "@repo/typescript-config": ["packages/typescript-config/base.json"]
+    }
+  }
+}
