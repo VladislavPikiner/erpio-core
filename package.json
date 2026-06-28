@@ -11,7 +11,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test": "turbo run test",
-    "test:e2e": "pnpm exec ts-node ./run-e2e.ts",
+    "test:e2e": "vitest run -c vitest.e2e.config.ts",
     "check-types": "turbo run check-types"
   },
   "dependencies": {

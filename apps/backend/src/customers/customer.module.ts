@@ -6,7 +6,6 @@ import { CustomerRepository } from './customer.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
   providers: [
     CustomerResolver,
     CustomerGroupResolver,

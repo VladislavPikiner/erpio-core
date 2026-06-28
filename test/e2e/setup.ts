@@ -6,7 +6,6 @@ async function seedDatabase() {
   const prisma = new PrismaService();
   await prisma.$connect();
 
-  // Reset existing mock DB state for predictability
   await prisma.sale.deleteMany({});
   await prisma.inventory.deleteMany({});
   await prisma.product.deleteMany({});
@@ -39,13 +38,10 @@ async function seedDatabase() {
   await prisma.$disconnect();
 }
 
-beforeAll(async () => {
+// Run initialization immediately when imported as a setup file
+(async () => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   await seedDatabase();
   (global as any).app = moduleRef.createNestApplication();
   await (global as any).app.init();
-});
-
-afterAll(async () => {
-  await (global as any).app?.close();
-});
+})();

@@ -4,8 +4,10 @@ import { FinanceService } from './finance.service';
 import { AccountRepository } from './account.repository';
 import { TransactionRepository } from './transaction.repository';
 import { InvoiceRepository } from './invoice.repository';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   providers: [
     FinanceResolver,
     FinanceService,
