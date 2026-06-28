@@ -2,7 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["packages/shared/src/*"],
+      "@prisma/client": ["apps/backend/prisma/generated/client"],
       "@ui/*": ["packages/ui/src/*"],
       "@repo/typescript-config": ["packages/typescript-config/base.json"]
     }

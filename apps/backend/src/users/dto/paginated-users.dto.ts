@@ -1,6 +1,11 @@
-import { User } from '@prisma/client';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { UserType } from '../users.type';
 
+@ObjectType()
 export class PaginatedUsersDto {
-  users: User[];
+  @Field(() => [UserType])
+  users: UserType[];
+
+  @Field(() => Int)
   totalCount: number;
 }
