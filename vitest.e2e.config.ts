@@ -5,9 +5,10 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./test/e2e/setup.ts'],
+    globalSetup: ['./test/e2e/global-setup.ts'],
     poolOptions: {
       threads: {
-        singleThread: true, // E2E тесты обычно требуют последовательного выполнения из-за БД
+        singleThread: true,
       },
     },
     include: ['test/e2e/**/*.spec.ts'],

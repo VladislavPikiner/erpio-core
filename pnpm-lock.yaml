@@ -79,10 +79,10 @@ importers:
         specifier: 15.1.0
         version: 15.1.0(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.0
         version: 19.2.7
       react-dom:
-        specifier: ^19.0.0
+        specifier: ^19.2.0
         version: 19.2.7(react@19.2.7)
       recharts:
         specifier: ^3.8.1
@@ -248,10 +248,10 @@ importers:
         specifier: 15.1.0
         version: 15.1.0(@opentelemetry/api@1.9.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
-        specifier: ^19.0.0
+        specifier: ^19.2.0
         version: 19.2.7
       react-dom:
-        specifier: ^19.0.0
+        specifier: ^19.2.0
         version: 19.2.7(react@19.2.7)
       zustand:
         specifier: ^5.0.14
