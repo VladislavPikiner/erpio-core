@@ -1,0 +1,298 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  url = env("DATABASE_URL")
+  provider     = "postgresql"
+  relationMode = "foreignKeys"
+}
+
+// --------------------------------------
+// Enums
+// --------------------------------------
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  CASHIER
+  WAREHOUSE
+}
+
+// --------------------------------------
+// Models
+// --------------------------------------
+
+model User {
+  id        String     @id @default(dbgenerated("gen_random_uuid()"))
+  username  String     @unique
+  password  String
+  email     String?    @unique
+  roles     UserRole[]
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  branchId String?
+  branch   Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  sessions Session[]
+}
+
+model Session {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String
+  ip        String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CustomerGroup {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  discount  Int      @default(0) // 500 = 5%
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customers Customer[]
+}
+
+model Customer {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  email     String?
+  phone     String?
+  address   String?
+  taxId     String?
+  discount  Int      @default(0) // 500 = 5%
+  notes     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groupId  String?
+  group    CustomerGroup? @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  sales    Sale[]
+  invoices Invoice[]
+}
+
+model Category {
+  id          String     @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  description String?
+  parentId    String?
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(dbgenerated("gen_random_uuid()"))
+  name        String
+  description String?
+  sku         String   @unique
+  barcode     String?
+  unit        String
+  price       Int
+  cost        Int
+  isActive    Boolean  @default(true)
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categoryId String?
+  category   Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  variants   ProductVariant[]
+  inventory  Inventory[]
+  sales      SaleItem[]
+  transfers  StockTransfer[]
+}
+
+model ProductVariant {
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  name       String
+  sku        String   @unique
+  price      Int
+  cost       Int
+  attributes String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  productId String
+  product   Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleItems SaleItem[]
+}
+
+model Branch {
+  id         String      @id @default(dbgenerated("gen_random_uuid()"))
+  name       String
+  address    String?
+  isActive   Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  warehouses Warehouse[]
+  users      User[]
+}
+
+model Warehouse {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branchId      String
+  branch        Branch          @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  inventory     Inventory[]
+  transfersFrom StockTransfer[] @relation("StockTransferFrom")
+  transfersTo   StockTransfer[] @relation("StockTransferTo")
+  sales         Sale[]
+}
+
+model Inventory {
+  id           String    @id @default(dbgenerated("gen_random_uuid()"))
+  quantity     Int
+  reserved     Int       @default(0)
+  reorderLevel Int?
+  lastStocked  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  movements   StockMovement[]
+
+  @@unique([productId, warehouseId])
+}
+
+model StockMovement {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  quantity  Int
+  type      String
+  reference String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  inventoryId String
+  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+}
+
+model StockTransfer {
+  id          String    @id @default(dbgenerated("gen_random_uuid()"))
+  quantity    Int
+  status      String
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  productId       String
+  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fromWarehouseId String
+  fromWarehouse   Warehouse @relation("StockTransferFrom", fields: [fromWarehouseId], references: [id], onDelete: Cascade)
+  toWarehouseId   String
+  toWarehouse     Warehouse @relation("StockTransferTo", fields: [toWarehouseId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  number    String   @unique
+  total     Int
+  discount  Int      @default(0)
+  tax       Int      @default(0)
+  status    String   @default("DRAFT")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  items    SaleItem[]
+  payments Payment[]
+}
+
+model SaleItem {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  quantity  Int
+  price     Int
+  discount  Int      @default(0)
+  tax       Int      @default(0)
+  total     Int
+  createdAt DateTime @default(now())
+
+  saleId    String
+  sale      Sale            @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+}
+
+model Payment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  amount    Int
+  method    String
+  reference String?
+  status    String   @default("PENDING")
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  saleId String
+  sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  name      String
+  type      String
+  balance   Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  amount    Int
+  type      String
+  reference String?
+  notes     String?
+  createdAt DateTime @default(now())
+
+  accountId String
+  account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+}
+
+model Invoice {
+  id        String    @id @default(dbgenerated("gen_random_uuid()"))
+  number    String    @unique
+  total     Int
+  tax       Int       @default(0)
+  status    String    @default("DRAFT")
+  dueDate   DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  customerId   String?
+  customer     Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+}

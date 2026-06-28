@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../../apps/backend/src/app.module';
 import { PrismaService } from '../../apps/backend/src/prisma/prisma.service';
+import { beforeAll, afterAll } from 'vitest';
 
 async function seedDatabase() {
   const prisma = new PrismaService();
@@ -38,10 +39,15 @@ async function seedDatabase() {
   await prisma.$disconnect();
 }
 
-// Run initialization immediately when imported as a setup file
-(async () => {
+beforeAll(async () => {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   await seedDatabase();
   (global as any).app = moduleRef.createNestApplication();
   await (global as any).app.init();
-})();
+});
+
+afterAll(async () => {
+  if ((global as any).app) {
+    await (global as any).app.close();
+  }
+});
