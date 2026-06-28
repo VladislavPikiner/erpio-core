@@ -8,24 +8,29 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 @Injectable()
 export class BranchGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = this.getRequest(context);
     const gqlContext = GqlExecutionContext.create(context);
-    const { req } = gqlContext.getContext();
     const args = gqlContext.getArgs();
 
     // Пытаемся получить branchId из аргументов GraphQL (напр. filter.branchId) или из тела запроса
-    const branchId = args.filter?.branchId || args.branchId || req.body?.variables?.branchId;
+    const branchId = args.filter?.branchId || args.branchId || request.body?.variables?.branchId;
 
     if (!branchId) {
-      // Если операция требует филиал, но он не передан — запрещаем
-      return true; // Или false, если считаем это критичным. Для начала разрешим, если филиал не указан (глобальный доступ)
+      return true; 
     }
 
-    // Здесь можно добавить логику проверки прав пользователя (например, user.branches.includes(branchId))
-    const user = req.user;
+    const user = request.user;
     if (user && user.role !== 'ADMIN' && user.branchId && user.branchId !== branchId) {
         throw new ForbiddenException('У вас нет доступа к этому филиалу');
     }
 
     return true;
+  }
+
+  private getRequest(context: ExecutionContext) {
+    if (context.getType<any>() === 'graphql') {
+      return GqlExecutionContext.create(context).getContext().req;
+    }
+    return context.switchToHttp().getRequest();
   }
 }
