@@ -119,7 +119,7 @@ describe('SaleRepository', () => {
     const warehouseId = 'wh-1';
     const updateData = { amount: 150 };
 
-    vi.spyOn(repository as any, 'findByIdScoped').mockRejectedWith(new Error(`Sale with ID ${saleId} not found`));
+    vi.spyOn(repository as any, 'findByIdScoped').mockImplementation(() => Promise.reject(new Error(`Sale with ID ${saleId} not found`)));
 
     await expect(repository.updateScoped(saleId, warehouseId, updateData)).rejects.toThrow(`Sale with ID ${saleId} not found`);
     expect(prismaService.sale.update).not.toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe('SaleRepository', () => {
     const saleId = 'sale-1';
     const warehouseId = 'wh-1';
 
-    vi.spyOn(repository as any, 'findByIdScoped').mockRejectedWith(new Error(`Sale with ID ${saleId} not found`));
+    vi.spyOn(repository as any, 'findByIdScoped').mockImplementation(() => Promise.reject(new Error(`Sale with ID ${saleId} not found`)));
 
     await expect(repository.deleteScoped(saleId, warehouseId)).rejects.toThrow(`Sale with ID ${saleId} not found`);
     expect(prismaService.sale.delete).not.toHaveBeenCalled();

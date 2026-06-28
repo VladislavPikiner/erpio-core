@@ -3,8 +3,10 @@ import { CustomerResolver } from './customer.resolver';
 import { CustomerGroupResolver } from './customer-group.resolver';
 import { CustomerService } from './customer.service';
 import { CustomerRepository } from './customer.repository';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
+  imports: [PrismaModule],
   providers: [
     CustomerResolver,
     CustomerGroupResolver,
