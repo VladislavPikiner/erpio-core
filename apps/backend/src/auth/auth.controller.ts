@@ -13,11 +13,14 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: any) {
+    console.log('Login attempt for user:', body.username);
     const { username, password } = body;
     const user = await this.authService.validateUser(username, password);
     if (!user) {
+      console.log('User not found or invalid password for:', username);
       throw new UnauthorizedException('Invalid credentials');
     }
+    console.log('User validated, generating token for:', username);
     return this.authService.login(user);
   }
 

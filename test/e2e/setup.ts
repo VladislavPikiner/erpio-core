@@ -4,29 +4,22 @@ import { PrismaService } from '../../apps/backend/src/prisma/prisma.service';
 import { beforeAll, afterAll } from 'vitest';
 
 async function seedDatabase() {
+  // Use a fresh PrismaClient to ensure it picks up the latest schema from the reset database
   const prisma = new PrismaService();
   await prisma.$connect();
+  
+  // Wait a moment for Prisma to recognize the schema change if necessary
+  await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Полная очистка в правильном порядке (от зависимых к родителям)
-  await prisma.saleItem.deleteMany({});
-  await prisma.payment.deleteMany({});
-  await prisma.sale.deleteMany({});
-  await prisma.invoice.deleteMany({});
-  await prisma.transaction.deleteMany({});
-  await prisma.inventory.deleteMany({});
-  await prisma.stockMovement.deleteMany({});
-  await prisma.stockTransfer.deleteMany({});
-  await prisma.productVariant.deleteMany({});
-  await prisma.product.deleteMany({});
-  await prisma.user.deleteMany({});
-  await prisma.branch.deleteMany({});
-  await prisma.customer.deleteMany({});
+  console.log('🌱 Seeding database...');
 
   const branchA = await prisma.branch.create({ data: { name: 'branchA' } });
   const branchB = await prisma.branch.create({ data: { name: 'branchB' } });
 
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { username: 'adminA' },
+    update: {},
+    create: {
       username: 'adminA',
       email: 'adminA@example.com',
       password: 'hashed',
@@ -35,8 +28,10 @@ async function seedDatabase() {
       isActive: true,
     },
   });
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { username: 'userB' },
+    update: {},
+    create: {
       username: 'userB',
       email: 'userB@example.com',
       password: 'hashed',
@@ -46,8 +41,10 @@ async function seedDatabase() {
     },
   });
 
-  await prisma.product.create({ 
-    data: { 
+  await prisma.product.upsert({
+    where: { sku: 'PROD-A' },
+    update: {},
+    create: { 
       name: 'ProductA', 
       price: 1000, 
       cost: 500,
@@ -55,8 +52,10 @@ async function seedDatabase() {
       sku: 'PROD-A'
     } 
   });
-  await prisma.product.create({ 
-    data: { 
+  await prisma.product.upsert({
+    where: { sku: 'PROD-B' },
+    update: {},
+    create: { 
       name: 'ProductB', 
       price: 2000, 
       cost: 1000,
@@ -69,6 +68,8 @@ async function seedDatabase() {
 }
 
 beforeAll(async () => {
+  process.env.DATABASE_URL = "postgresql://postgres:password@localhost:5433/erpio_db?schema=public";
+  process.env.JWT_SECRET = "super-secret-enterprise-key";
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   await seedDatabase();
   (global as any).app = moduleRef.createNestApplication();

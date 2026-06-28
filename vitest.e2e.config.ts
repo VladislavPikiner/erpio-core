@@ -4,19 +4,19 @@ import path from 'path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@prisma/client': path.resolve(__dirname, './apps/backend/prisma/generated/client'),
+      '@prisma/client': path.resolve(__dirname, 'apps/backend/prisma/generated/client'),
+      '@prisma/adapter-pg': path.resolve(__dirname, 'node_modules/@prisma/adapter-pg'),
+      'pg': path.resolve(__dirname, 'node_modules/pg'),
     },
   },
   test: {
     globals: true,
     environment: 'node',
     setupFiles: ['./test/e2e/setup.ts'],
-    globalSetup: ['./test/e2e/global-setup.ts'],
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
+    include: ['test/e2e/**/*.spec.ts', 'apps/backend/tests/**/*.test.ts'],
+    env: {
+      DATABASE_URL: "postgresql://postgres:password@localhost:5433/erpio_db?schema=public",
+      JWT_SECRET: "super-secret-enterprise-key",
     },
-    include: ['test/e2e/**/*.spec.ts'],
   },
 });

@@ -5,9 +5,472 @@
 type UserType {
   id: ID!
   username: String!
+  email: String
   roles: [String!]!
+  isActive: Boolean!
+}
+
+type PaginatedUsersDto {
+  users: [UserType!]!
+  totalCount: Int!
+}
+
+type CustomerGroupType {
+  id: ID!
+  name: String!
+
+  """Скидка группы в процентах*100 (500 = 5%)"""
+  discount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type CustomerType {
+  id: ID!
+  name: String!
+  email: String
+  phone: String
+  address: String
+  taxId: String
+  group: CustomerGroupType
+
+  """Индивидуальная скидка в процентах*100 (500 = 5%)"""
+  discount: Int!
+  notes: String
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CategoryType {
+  id: ID!
+  name: String!
+  description: String
+  parentId: ID
+  parent: CategoryType
+  children: [CategoryType!]
+  sortOrder: Int!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductType {
+  id: ID!
+  name: String!
+  description: String
+  sku: String!
+  barcode: String
+  unit: String!
+
+  """Цена в копейках"""
+  price: Int!
+
+  """Себестоимость в копейках"""
+  cost: Int!
+  category: CategoryType
+  isActive: Boolean
+  image: String
+  variants: [ProductVariantType!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductVariantType {
+  id: ID!
+  name: String!
+  sku: String!
+
+  """Цена в копейках"""
+  price: Int!
+
+  """Себестоимость в копейках"""
+  cost: Int!
+
+  """JSON-атрибуты { color, size }"""
+  attributes: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SaleType {
+  id: ID!
+  number: String!
+  customer: CustomerType
+  date: DateTime!
+
+  """Сумма до скидки, копейки"""
+  subtotal: Int!
+
+  """Скидка, копейки"""
+  discount: Int!
+
+  """Итого, копейки"""
+  total: Int!
+  status: String!
+  notes: String
+  items: [SaleItemType!]
+  payments: [PaymentType!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SaleItemType {
+  id: ID!
+  product: ProductType!
+  quantity: Int!
+
+  """Цена за единицу, копейки"""
+  unitPrice: Int!
+
+  """Скидка на позицию, копейки"""
+  discount: Int!
+
+  """Итого по позиции, копейки"""
+  total: Int!
+}
+
+type PaymentType {
+  id: ID!
+  amount: Int!
+  method: String!
+  status: String!
+  reference: String
+  createdAt: DateTime!
+}
+
+type AccountType {
+  id: ID!
+  name: String!
+  type: String!
+
+  """Баланс в копейках"""
+  balance: Int!
+  currency: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TransactionType {
+  id: ID!
+  account: AccountType!
+  type: String!
+
+  """Сумма в копейках"""
+  amount: Int!
+  description: String
+  referenceType: String
+  referenceId: String
+  date: DateTime!
+  createdAt: DateTime!
+}
+
+type InvoiceType {
+  id: ID!
+  number: String!
+  customer: CustomerType
+  date: DateTime!
+  dueDate: DateTime!
+
+  """Сумма до НДС, копейки"""
+  subtotal: Int!
+
+  """НДС, копейки"""
+  tax: Int!
+
+  """Итого с НДС, копейки"""
+  total: Int!
+  status: String!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type DashboardMetricType {
+  id: ID!
+  key: String!
+  value: Float!
+  metadata: String!
+  updatedAt: DateTime!
+}
+
+type DailySalesAggregateType {
+  id: ID!
+  date: DateTime!
+  total: Int!
+  count: Int!
+  avgValue: Int!
 }
 
 type Query {
-  me: UserType!
+  user(id: String!): UserType
+  users(skip: Int, take: Int, cursor: String, filter: String): PaginatedUsersDto!
+  customers(filter: CustomerFilterInput): [CustomerType!]!
+  customersCount(filter: CustomerFilterInput): Int!
+  customer(id: String!): CustomerType!
+  customerGroups: [CustomerGroupType!]!
+  customerGroup(id: String!): CustomerGroupType!
+  categories(includeInactive: Boolean = false): [CategoryType!]!
+  categoryTree: [CategoryType!]!
+  rootCategories(includeInactive: Boolean = false): [CategoryType!]!
+  category(id: String!): CategoryType!
+  products(filter: ProductFilterInput): [ProductType!]!
+  productsCount(filter: ProductFilterInput): Int!
+  product(id: String!): ProductType!
+  productVariants(productId: String!): [ProductVariantType!]!
+  sales(filter: SaleFilterInput): [SaleType!]!
+  salesCount(filter: SaleFilterInput): Int!
+  sale(id: String!): SaleType!
+  salePayments(saleId: String!): [PaymentType!]!
+  accounts: [AccountType!]!
+  account(id: String!): AccountType!
+  transactions(accountId: String, limit: Float = 50): [TransactionType!]!
+  invoices(filter: InvoiceFilterInput): [InvoiceType!]!
+  invoicesCount(filter: InvoiceFilterInput): Int!
+  invoice(id: String!): InvoiceType!
+  dashboardMetrics: [DashboardMetricType!]!
+  dailySales(days: Float = 30): [DailySalesAggregateType!]!
+  liveMetric(key: String!): Float!
+}
+
+input CustomerFilterInput {
+  search: String
+  isActive: Boolean
+  groupId: String
+  skip: Int
+  take: Int
+}
+
+input ProductFilterInput {
+  search: String
+  categoryId: String
+  isActive: Boolean
+  minPrice: Int
+  maxPrice: Int
+  skip: Int
+  branchId: String
+}
+
+input SaleFilterInput {
+  search: String
+  status: String
+  customerId: String
+  dateFrom: DateTime
+  dateTo: DateTime
+  skip: Int
+  take: Int
+}
+
+input InvoiceFilterInput {
+  customerId: String
+  status: String
+  dateFrom: DateTime
+  dateTo: DateTime
+  skip: Int
+  take: Int
+}
+
+type Mutation {
+  createUser(input: CreateUserDto!): UserType!
+  updateUser(id: String!, input: UpdateUserDto!): UserType!
+  deleteUser(id: String!): UserType!
+  createCustomer(input: CreateCustomerInput!): CustomerType!
+  updateCustomer(id: String!, input: UpdateCustomerInput!): CustomerType!
+  deleteCustomer(id: String!): CustomerType!
+  createCustomerGroup(input: CreateCustomerGroupInput!): CustomerGroupType!
+  updateCustomerGroup(id: String!, input: UpdateCustomerGroupInput!): CustomerGroupType!
+  deleteCustomerGroup(id: String!): CustomerGroupType!
+  createCategory(input: CreateCategoryInput!): CategoryType!
+  updateCategory(id: String!, input: UpdateCategoryInput!): CategoryType!
+  deleteCategory(id: String!): CategoryType!
+  createProduct(input: CreateProductInput!): ProductType!
+  updateProduct(id: String!, input: UpdateProductInput!): ProductType!
+  deleteProduct(id: String!): ProductType!
+  createProductVariant(productId: String!, input: CreateProductVariantInput!): ProductVariantType!
+  updateProductVariant(id: String!, input: UpdateProductVariantInput!): ProductVariantType!
+  deleteProductVariant(id: String!): ProductVariantType!
+  createSale(warehouseId: String!, input: CreateSaleInput!): SaleType!
+  cancelSale(id: String!): SaleType!
+  completeSale(id: String!): SaleType!
+  addPayment(input: CreatePaymentInput!): PaymentType!
+  createAccount(input: CreateAccountInput!): AccountType!
+  updateAccount(id: String!, input: UpdateAccountInput!): AccountType!
+  createTransaction(input: CreateTransactionInput!): TransactionType!
+  createInvoice(input: CreateInvoiceInput!): InvoiceType!
+  markInvoicePaid(id: String!): InvoiceType!
+  cancelInvoice(id: String!): InvoiceType!
+}
+
+input CreateUserDto {
+  username: String!
+  password: String!
+  email: String
+  roles: [String!]!
+  branchId: String
+}
+
+input UpdateUserDto {
+  username: String
+  password: String
+  email: String
+  roles: [String!]
+  branchId: String
+  isActive: Boolean
+}
+
+input CreateCustomerInput {
+  name: String!
+  email: String
+  phone: String
+  address: String
+  taxId: String
+  groupId: String
+
+  """Скидка в процентах*100"""
+  discount: Int
+  notes: String
+  isActive: Boolean
+}
+
+input UpdateCustomerInput {
+  name: String
+  email: String
+  phone: String
+  address: String
+  taxId: String
+  groupId: String
+  discount: Int
+  notes: String
+  isActive: Boolean
+}
+
+input CreateCustomerGroupInput {
+  name: String!
+  discount: Int! = 0
+}
+
+input UpdateCustomerGroupInput {
+  name: String
+  discount: Int
+}
+
+input CreateCategoryInput {
+  name: String!
+  description: String
+  parentId: String
+  sortOrder: Int
+  isActive: Boolean
+}
+
+input UpdateCategoryInput {
+  name: String
+  description: String
+  parentId: String
+  sortOrder: Int
+  isActive: Boolean
+}
+
+input CreateProductInput {
+  name: String!
+  description: String
+  sku: String!
+  barcode: String
+  unit: String
+  price: Int!
+  cost: Int
+  categoryId: String
+  image: String
+  isActive: Boolean
+}
+
+input UpdateProductInput {
+  name: String
+  description: String
+  sku: String
+  barcode: String
+  unit: String
+  price: Int
+  cost: Int
+  categoryId: String
+  image: String
+  isActive: Boolean
+}
+
+input CreateProductVariantInput {
+  name: String!
+  sku: String!
+  price: Int!
+  cost: Int
+  attributes: String
+}
+
+input UpdateProductVariantInput {
+  name: String
+  sku: String
+  price: Int
+  cost: Int
+  attributes: String
+  isActive: Boolean
+}
+
+input CreateSaleInput {
+  customerId: String
+  items: [CreateSaleItemInput!]!
+
+  """Скидка на всю продажу, копейки"""
+  discount: Int!
+  notes: String
+}
+
+input CreateSaleItemInput {
+  productId: String!
+  variantId: String
+  quantity: Int!
+  unitPrice: Int!
+  discount: Int
+}
+
+input CreatePaymentInput {
+  saleId: String!
+  amount: Int!
+  method: String!
+  reference: String
+}
+
+input CreateAccountInput {
+  name: String!
+  type: String!
+  currency: String
+  isActive: Boolean
+}
+
+input UpdateAccountInput {
+  name: String
+  type: String
+  currency: String
+  isActive: Boolean
+}
+
+input CreateTransactionInput {
+  accountId: String!
+  type: String!
+  amount: Int!
+  description: String
+  referenceType: String
+  referenceId: String
+}
+
+input CreateInvoiceInput {
+  customerId: String
+  dueDate: DateTime!
+  subtotal: Int!
+  tax: Int
+  notes: String
 }

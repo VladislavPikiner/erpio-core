@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
-import * as request from 'supertest';
+import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 
 describe('AuthController (E2E)', () => {
@@ -18,7 +18,11 @@ describe('AuthController (E2E)', () => {
   it('/auth/register (POST) should return success message', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/register')
-      .send({ username: 'testuser', password: 'password123' });
+      .send({ 
+        username: 'testuser', 
+        password: 'password123', 
+        roles: ['CASHIER'] 
+      });
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('message', 'User registered successfully');
   });
@@ -26,23 +30,23 @@ describe('AuthController (E2E)', () => {
   it('/auth/login (POST) should return JWT access token', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: 'admin', password: 'password' });
+      .send({ username: 'adminA', password: 'password' });
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('access_token');
 
     const token = response.body.access_token;
     const jwtPayload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    expect(jwtPayload).toHaveProperty('username', 'admin');
+    expect(jwtPayload).toHaveProperty('username', 'adminA');
   });
 
   it('/auth/login (POST) should return Unauthorized for invalid credentials', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
-      .send({ username: 'admin', password: 'wrongpassword' });
+      .send({ username: 'adminA', password: 'wrongpassword' });
 
     expect(response.status).toBe(401);
-    expect(response.body.error).toHaveProperty('message', 'Invalid credentials');
+    expect(response.body).toHaveProperty('message', 'Invalid credentials');
   });
 
   afterAll(async () => {
