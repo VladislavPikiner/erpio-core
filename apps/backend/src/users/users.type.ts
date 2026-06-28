@@ -5,15 +5,15 @@ export class UserType {
   @Field(() => ID)
   id: string;
 
-  @Field()
+  @Field(() => String)
   username: string;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   email: string | null;
 
   @Field(() => [String])
   roles: string[];
 
-  @Field()
+  @Field(() => Boolean)
   isActive: boolean;
 }
