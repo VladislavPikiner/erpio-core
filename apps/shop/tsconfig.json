@@ -1,5 +1,15 @@
 {
   "extends": "../../packages/typescript-config/next.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/*"],
+      "@erpio/shared": ["../../packages/shared/src/index.ts"],
+      "@erpio/shared/*": ["../../packages/shared/src/*"],
+      "@repo/ui": ["../../packages/ui/src/index.tsx"],
+      "@repo/ui/*": ["../../packages/ui/src/*"]
+    }
+  },
   "include": [
     "**/*.ts",
     "**/*.tsx",
