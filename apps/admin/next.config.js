@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   webpack: (config, {
@@ -7,7 +9,7 @@ const nextConfig = {
     // Add custom resolution for @/ paths
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@/': require('path').resolve(__dirname, './lib/'),
+      '@/': path.resolve(__dirname, './lib/'),
     };
 
     // If you need to transpile packages that use CJS modules or have specific TS requirements,

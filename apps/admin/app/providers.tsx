@@ -1,4 +1,5 @@
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client/react';
 
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

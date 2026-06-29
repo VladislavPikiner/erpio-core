@@ -3,7 +3,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Inventory } from '@prisma/client';
 import { BranchScopedRepository } from '../common/repositories/base.repository';
 
-@Injectable()
 export class InventoryRepository extends BranchScopedRepository<Inventory> {
   constructor(prisma: PrismaService) {
     super(prisma.inventory);

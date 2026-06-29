@@ -16,7 +16,6 @@ export function computeSubtotal(items: CreateSaleItemData[]): number {
   return items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 }
 
-@Injectable()
 export class SaleItemRepository {
   constructor(private readonly prisma: PrismaService) {}
 

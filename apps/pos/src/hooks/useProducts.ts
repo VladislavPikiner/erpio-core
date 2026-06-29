@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import { useState, useEffect } from 'react';
 import { apiFetch, Product } from '@erpio/shared';
 

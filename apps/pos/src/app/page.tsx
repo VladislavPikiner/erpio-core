@@ -1,3 +1,5 @@
+'use client';
+
 import ProductGrid from '../components/ProductGrid';
 import CheckoutPanel from '../components/CheckoutPanel';
 

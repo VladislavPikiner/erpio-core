@@ -5,7 +5,7 @@ interface Props {
   onPriceChange: (range: { min: number; max: number }) => void;
 }
 
-export const ProductFilters: React.FC<Props> = ({ onCategoryChange, onPriceChange }) => {
+export const ProductFilters = ({ onCategoryChange, onPriceChange }: Props) => {
   return (
     <div className="w-64 p-4 border-r border-zinc-200">
       <h3 className="font-semibold mb-4">Категории</h3>

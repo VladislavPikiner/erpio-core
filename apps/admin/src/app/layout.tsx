@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthGuard } from "../components/AuthGuard"; // Будем использовать shared guard, если перенесем его в shared или скопируем
+
 
 export const metadata: Metadata = {
   title: "Erpio Admin",

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+'use client';
+
 import { useCart } from '../store/useCart';
 import { apiFetch } from '@erpio/shared';
 

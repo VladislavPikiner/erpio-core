@@ -16,7 +16,6 @@ export interface ProductFilter {
 
 const LIST_INCLUDE = { category: true, variants: true } as const;
 
-@Injectable()
 export class ProductRepository extends BaseRepository<Product> {
   constructor(private readonly prisma: PrismaService) {
     super(prisma.product);

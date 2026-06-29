@@ -15,10 +15,7 @@ interface SlideOverCartProps {
   onCheckout: () => void;
 }
 
-export const SlideOverCart: React.FC<SlideOverCartProps> = (
-  { isOpen, onClose, cartItems, onRemoveItem, onUpdateQuantity, onCheckout } = 
-  { isOpen: false, onClose: () => {}, cartItems: [], onRemoveItem: () => {}, onUpdateQuantity: () => {}, onCheckout: () => {} } // Default props
-) => {
+export const SlideOverCart = ({ isOpen, onClose, cartItems, onRemoveItem, onUpdateQuantity, onCheckout }: SlideOverCartProps) => {
   if (!isOpen) return null;
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);

@@ -21,7 +21,6 @@ export interface UpdateVariantData {
   isActive?: boolean;
 }
 
-@Injectable()
 export class VariantRepository extends BaseRepository<ProductVariant> {
   constructor(private readonly prisma: PrismaService) {
     super(prisma.productVariant);

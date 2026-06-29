@@ -54,7 +54,7 @@ export default function ProductsPage() {
 
   return (
     <ToastProvider>
-        <div className="flex p-8 max-w-6xl mx-auto">
+      <div className="flex p-8 max-w-6xl mx-auto">
           <ProductFilters 
             onCategoryChange={(cat) => {
               setCategory(cat);
