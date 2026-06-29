@@ -21,14 +21,12 @@ export function uuidv7(): string {
 
   // Unix timestamp в миллисекундах (48 бит) → bytes[0..5] big-endian
   const ts = BigInt(Date.now());
-  const tsBuf = new Uint8Array(8);
-  new DataView(tsBuf.buffer).setBigUint64(0, ts, false);
-  bytes[0] = tsBuf[2];
-  bytes[1] = tsBuf[3];
-  bytes[2] = tsBuf[4];
-  bytes[3] = tsBuf[5];
-  bytes[4] = tsBuf[6];
-  bytes[5] = tsBuf[7];
+  bytes[0] = Number((ts >> 40n) & 0xffn);
+  bytes[1] = Number((ts >> 32n) & 0xffn);
+  bytes[2] = Number((ts >> 24n) & 0xffn);
+  bytes[3] = Number((ts >> 16n) & 0xffn);
+  bytes[4] = Number((ts >> 8n) & 0xffn);
+  bytes[5] = Number(ts & 0xffn);
 
   // Версия 7: старшие 4 бита 6-го байта = 0111
   bytes[6] = (bytes[6] & 0x0f) | 0x70;

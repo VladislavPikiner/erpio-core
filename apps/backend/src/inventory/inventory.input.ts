@@ -72,7 +72,7 @@ export class AdjustStockInput {
   quantity!: number;
 
   @Field()
-  type!: string;
+  type!: 'IN' | 'OUT' | 'ADJUSTMENT' | 'TRANSFER_IN' | 'TRANSFER_OUT';
 
   @Field({ nullable: true })
   notes?: string;
