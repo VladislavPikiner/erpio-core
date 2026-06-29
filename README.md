@@ -54,82 +54,34 @@ Architected for scalability, observability, and type-safety.
   pnpm run test
   ```
 
-### 📦 Adding a New Package
-
-1. Create a new folder in `packages/` or `apps/`.
-2. Initialize `package.json`:
-   ```bash
-   cd packages/<new-package>
-   pnpm init
-   ```
-3. Add the package to `pnpm-workspace.yaml`.
-4. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-### 🔗 Adding Dependencies Between Packages
-
-- Add a dependency from one package to another (e.g., `@erpio/shared` in `@erpio/admin`):
-  ```bash
-  pnpm add @erpio/shared --filter=@erpio/admin
-  ```
-
-### 🧹 Cleaning and Rebuilding
-
-- Clean the cache and rebuild the project:
+- **Clean the project**:
   ```bash
   pnpm run clean
-  pnpm run build
   ```
 
-### 🔄 Working with Git
-
-- Before committing, ensure all changes are tested and built:
+- **Lint the project**:
   ```bash
-  pnpm run build
-  pnpm run test
+  pnpm run lint
   ```
 
-- Commit changes:
+### 📌 Advanced Commands
+
+- **Run a specific app**:
   ```bash
-  git add .
-  git commit -m "<your-commit-message>"
+  pnpm run dev --filter=@erpio/admin
   ```
 
-- Push changes to the remote repository:
+- **Build a specific package**:
   ```bash
-  git push origin main
+  pnpm run build --filter=@erpio/shared
   ```
 
-### ⚠️ Troubleshooting
+- **Run tests for a specific package**:
+  ```bash
+  pnpm run test --filter=@erpio/backend
+  ```
 
-- **Build errors due to dependencies**:
-  1. Clear the cache:
-     ```bash
-     pnpm run clean
-     ```
-  2. Reinstall dependencies:
-     ```bash
-     rm -rf node_modules
-     pnpm install
-     ```
-
-- **Module resolution errors**:
-  - Ensure all dependencies are installed (`pnpm install`).
-  - Ensure all packages are built (`pnpm run build`).
-
-- **TurboRepo issues**:
-  1. Clear the cache:
-     ```bash
-     pnpm run clean
-     ```
-  2. Rebuild the project:
-     ```bash
-     pnpm run build
-     ```
-
-## 📚 Testing
+## 📝 Testing
 
 ### Unit-тесты
 
@@ -148,6 +100,7 @@ pnpm run test
 ```bash
 # В директории @erpio/admin
 cd apps/admin
+pnpm run dev &  # Запустите сервер Next.js
 pnpm exec playwright test
 ```
 
@@ -160,6 +113,23 @@ pnpm exec playwright test
 cd apps/backend
 pnpm run test:integration
 ```
+
+## 🔍 Технические долги и аудит
+
+### Текущее состояние
+
+- **Unit-тесты**: Настроены для `@erpio/admin` (компоненты и хуки).
+- **E2E-тесты**: В процессе настройки (Playwright).
+- **Интеграционные тесты**: Настроены для `@erpio/backend`.
+
+### План аудита
+
+1. **Проверка структуры проекта**: Выявление неиспользуемых файлов и зависимостей.
+2. **Анализ архитектуры**: Проверка соответствия best practices (NestJS, Next.js, Prisma).
+3. **Технические долги**: Заглушки, мусор, неиспользуемый код.
+4. **План устранения**: Детальный план по исправлению замечаний.
+
+> **Примечание**: Аудит будет проведён без внесения изменений в код. Отчёт будет предоставлен для утверждения.
 
 ## 📚 Documentation
 
