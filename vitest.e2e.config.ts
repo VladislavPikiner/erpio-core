@@ -18,5 +18,8 @@ export default defineConfig({
       DATABASE_URL: "postgresql://postgres:password@localhost:5433/erpio_db?schema=public",
       JWT_SECRET: "super-secret-enterprise-key",
     },
+    deps: {
+      inline: [/supertest/, /@nestjs/],
+    },
   },
 });

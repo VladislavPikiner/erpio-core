@@ -99,6 +99,15 @@ type ProductVariantType {
   updatedAt: DateTime!
 }
 
+type InventoryType {
+  id: ID!
+  quantity: Int!
+  reserved: Int!
+  reorderLevel: Int
+  productId: ID!
+  warehouseId: ID!
+}
+
 type SaleType {
   id: ID!
   number: String!
@@ -225,6 +234,7 @@ type Query {
   productsCount(filter: ProductFilterInput): Int!
   product(id: String!): ProductType!
   productVariants(productId: String!): [ProductVariantType!]!
+  inventory(productId: String!, warehouseId: String!): InventoryType!
   sales(filter: SaleFilterInput): [SaleType!]!
   salesCount(filter: SaleFilterInput): Int!
   sale(id: String!): SaleType!
@@ -296,6 +306,7 @@ type Mutation {
   createProductVariant(productId: String!, input: CreateProductVariantInput!): ProductVariantType!
   updateProductVariant(id: String!, input: UpdateProductVariantInput!): ProductVariantType!
   deleteProductVariant(id: String!): ProductVariantType!
+  adjustStock(warehouseId: String!, data: AdjustStockInput!): InventoryType!
   createSale(warehouseId: String!, input: CreateSaleInput!): SaleType!
   cancelSale(id: String!): SaleType!
   completeSale(id: String!): SaleType!
@@ -418,6 +429,13 @@ input UpdateProductVariantInput {
   cost: Int
   attributes: String
   isActive: Boolean
+}
+
+input AdjustStockInput {
+  productId: String!
+  quantity: Int!
+  type: String!
+  notes: String
 }
 
 input CreateSaleInput {

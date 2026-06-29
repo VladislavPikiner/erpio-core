@@ -1,5 +1,5 @@
 {
-  "extends": "../../packages/typescript-config/nextjs.json",
+  "extends": "../../packages/typescript-config/next.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -8,9 +8,7 @@
       "@erpio/shared/*": ["../../packages/shared/src/*"],
       "@repo/ui": ["../../packages/ui/src/index.tsx"],
       "@repo/ui/*": ["../../packages/ui/src/*"]
-    },
-    "jsx": "preserve",
-    "moduleResolution": "bundler"
+    }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"]
 }

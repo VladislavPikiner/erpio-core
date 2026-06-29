@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { InventoryRepository } from './inventory.repository';
+import { InventoryResolver } from './inventory.resolver';
 import { PrismaModule } from '../prisma/prisma.module';
 import { ProductModule } from '../products/product.module';
 import { WarehouseModule } from '../warehouses/warehouse.module';
@@ -11,7 +12,7 @@ import { WarehouseModule } from '../warehouses/warehouse.module';
     forwardRef(() => ProductModule),
     forwardRef(() => WarehouseModule),
   ],
-  providers: [InventoryService, InventoryRepository],
+  providers: [InventoryService, InventoryRepository, InventoryResolver],
   exports: [InventoryService, InventoryRepository],
 })
 export class InventoryModule {}

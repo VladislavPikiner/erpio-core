@@ -62,3 +62,18 @@ export class StockFilterInput {
   @Field(() => Int, { nullable: true })
   take?: number;
 }
+
+@InputType()
+export class AdjustStockInput {
+  @Field()
+  productId!: string;
+
+  @Field(() => Int)
+  quantity!: number;
+
+  @Field()
+  type!: string;
+
+  @Field({ nullable: true })
+  notes?: string;
+}

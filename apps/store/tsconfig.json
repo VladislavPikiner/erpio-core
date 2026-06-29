@@ -1,25 +1,5 @@
 {
-  "extends": "../../packages/typescript-config/nextjs.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@erpio/shared": [
-        "../../packages/shared/src/index.ts"
-      ],
-      "@erpio/shared/*": [
-        "../../packages/shared/src/*"
-      ],
-      "@repo/ui": [
-        "../../packages/ui/src/index.tsx"
-      ],
-      "@repo/ui/*": [
-        "../../packages/ui/src/*"
-      ]
-    }
-  },
+  "extends": "../../packages/typescript-config/next.json",
   "include": [
     "**/*.ts",
     "**/*.tsx",
