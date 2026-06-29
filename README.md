@@ -129,6 +129,38 @@ Architected for scalability, observability, and type-safety.
      pnpm run build
      ```
 
+## 📚 Testing
+
+### Unit-тесты
+
+Для запуска unit-тестов используйте `Vitest`:
+
+```bash
+# В директории @erpio/admin
+cd apps/admin
+pnpm run test
+```
+
+### E2E-тесты
+
+Для запуска E2E-тестов используйте `Playwright`:
+
+```bash
+# В директории @erpio/admin
+cd apps/admin
+pnpm exec playwright test
+```
+
+### Интеграционные тесты
+
+Если требуется запустить интеграционные тесты, используйте:
+
+```bash
+# В директории @erpio/backend
+cd apps/backend
+pnpm run test:integration
+```
+
 ## 📚 Documentation
 
 - [TypeScript](https://www.typescriptlang.org/)
