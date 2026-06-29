@@ -4,7 +4,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "app/*"
+        "src/*"
       ],
       "@erpio/shared": [
         "../../packages/shared/src/index.ts"

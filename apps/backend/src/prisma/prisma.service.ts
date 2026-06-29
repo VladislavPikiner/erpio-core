@@ -16,7 +16,7 @@ export class PrismaService
     });
 
     super({
-      adapter: new PrismaPg(pool),
+      adapter: new PrismaPg(pool as any),
     });
   }
 

@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -56,7 +57,7 @@ export function DataTable<TData, TValue>({
               )}
               {headerGroup.headers.map((header) => (
                 <th key={header.id} className="p-4 text-left font-medium">
-                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  {flexRender(header.column.columnDef.header, header.getContext()) as ReactNode}
                 </th>
               ))}
             </tr>
@@ -76,7 +77,7 @@ export function DataTable<TData, TValue>({
               )}
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="p-4">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {flexRender(cell.column.columnDef.cell, cell.getContext()) as ReactNode}
                 </td>
               ))}
             </tr>
