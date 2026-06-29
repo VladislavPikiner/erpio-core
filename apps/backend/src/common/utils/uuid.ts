@@ -29,10 +29,12 @@ export function uuidv7(): string {
   bytes[5] = Number(ts & 0xffn);
 
   // Версия 7: старшие 4 бита 6-го байта = 0111
-  bytes[6] = (bytes[6] & 0x0f) | 0x70;
+  const b6 = bytes[6];
+  bytes[6] = (b6 & 0x0f) | 0x70;
 
   // Вариант RFC 4122: старшие 2 бита 8-го байта = 10
-  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const b8 = bytes[8];
+  bytes[8] = (b8 & 0x3f) | 0x80;
 
   // Форматирование в UUID xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
   const hex = Array.from(bytes)

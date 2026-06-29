@@ -83,8 +83,8 @@ describe('SaleRepository', () => {
 
   // Тесты для createScoped
   it('should create a sale for a warehouse', async () => {
-    const mockSale: Partial<Sale> = { id: 'sale-new', warehouseId: 'wh-1', amount: 100 };
-    const createData = { amount: 100 };
+    const mockSale: Partial<Sale> = { id: 'sale-new', warehouseId: 'wh-1', total: 100 };
+    const createData = { total: 100 };
     vi.spyOn(repository['model'], 'create').mockResolvedValue(mockSale as Sale);
 
     const result = await repository.createScoped('wh-1', createData);
@@ -99,10 +99,10 @@ describe('SaleRepository', () => {
   it('should update a sale for a warehouse', async () => {
     const saleId = 'sale-1';
     const warehouseId = 'wh-1';
-    const updateData = { amount: 150 };
-    const updatedMockSale: Partial<Sale> = { id: saleId, warehouseId: warehouseId, amount: 150 };
+    const updateData = { total: 150 };
+    const updatedMockSale: Partial<Sale> = { id: saleId, warehouseId: warehouseId, total: 150 };
 
-    vi.spyOn(repository as any, 'findByIdScoped').mockResolvedValue({ id: saleId, warehouseId: warehouseId, amount: 100 } as Sale);
+    vi.spyOn(repository as any, 'findByIdScoped').mockResolvedValue({ id: saleId, warehouseId: warehouseId, total: 100 } as Sale);
     vi.spyOn(repository['model'], 'update').mockResolvedValue(updatedMockSale as Sale);
 
     const result = await repository.updateScoped(saleId, warehouseId, updateData);
@@ -117,7 +117,7 @@ describe('SaleRepository', () => {
   it('should throw error if sale not found during update', async () => {
     const saleId = 'sale-1';
     const warehouseId = 'wh-1';
-    const updateData = { amount: 150 };
+    const updateData = { total: 150 };
 
     vi.spyOn(repository as any, 'findByIdScoped').mockImplementation(() => Promise.reject(new Error(`Sale with ID ${saleId} not found`)));
 

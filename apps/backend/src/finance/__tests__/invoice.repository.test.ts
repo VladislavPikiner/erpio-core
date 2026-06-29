@@ -65,7 +65,7 @@ describe('InvoiceRepository', () => {
         tax: 20,
         notes: 'Test note',
       };
-      const mockInvoice = { ...createData, id: 'inv-new', total: 120, status: 'DRAFT' } as Invoice;
+      const mockInvoice = { ...createData, id: 'inv-new', total: 120, status: 'DRAFT' } as unknown as Invoice;
       
       vi.spyOn(repository, 'generateNumber').mockResolvedValue('INV-2026-00001');
       vi.spyOn(repository['model'], 'create').mockResolvedValue(mockInvoice);

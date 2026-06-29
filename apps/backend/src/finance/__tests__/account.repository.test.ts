@@ -21,7 +21,7 @@ describe('AccountRepository', () => {
   });
 
   it('should find all accounts', async () => {
-    const mockAccounts: Partial<Account>[] = [{ id: 'acc-1', name: 'Cash', type: 'ASSET', currency: 'USD', isActive: true, balance: 0 }];
+    const mockAccounts: Partial<Account>[] = [{ id: 'acc-1', name: 'Cash', type: 'ASSET', isActive: true, balance: 0 }];
     vi.spyOn(prismaService.account, 'findMany').mockResolvedValue(mockAccounts as Account[]);
 
     const result = await repository.findAll();
@@ -31,7 +31,7 @@ describe('AccountRepository', () => {
   });
 
   it('should find account by id', async () => {
-    const mockAccount: Partial<Account> = { id: 'acc-1', name: 'Cash', type: 'ASSET', currency: 'USD', isActive: true, balance: 0 };
+    const mockAccount: Partial<Account> = { id: 'acc-1', name: 'Cash', type: 'ASSET', isActive: true, balance: 0 };
     vi.spyOn(prismaService.account, 'findUnique').mockResolvedValue(mockAccount as Account);
 
     const result = await repository.findById('acc-1');
@@ -50,8 +50,8 @@ describe('AccountRepository', () => {
   });
 
   it('should create an account', async () => {
-    const mockAccount: Partial<Account> = { id: 'acc-new', name: 'Bank', type: 'ASSET', currency: 'EUR', isActive: true, balance: 0 };
-    const createData = { name: 'Bank', type: 'ASSET', currency: 'EUR', isActive: true };
+    const mockAccount: Partial<Account> = { id: 'acc-new', name: 'Bank', type: 'ASSET', isActive: true, balance: 0 };
+    const createData = { name: 'Bank', type: 'ASSET', isActive: true };
     vi.spyOn(prismaService.account, 'create').mockResolvedValue(mockAccount as Account);
 
     const result = await repository.create(createData as any);
@@ -59,14 +59,14 @@ describe('AccountRepository', () => {
     expect(result).toEqual(mockAccount);
     // Проверяем, что id генерируется (uuidv7)
     expect(prismaService.account.create).toHaveBeenCalledWith(
-      expect.objectContaining({ data: expect.objectContaining({ name: 'Bank', type: 'ASSET', currency: 'EUR', isActive: true }) })
+      expect.objectContaining({ data: expect.objectContaining({ name: 'Bank', type: 'ASSET', isActive: true }) })
     );
   });
 
   it('should update an account', async () => {
     const accountId = 'acc-1';
     const updateData = { name: 'Savings', isActive: false };
-    const updatedMockAccount: Partial<Account> = { id: accountId, name: 'Savings', isActive: false, type: 'ASSET', currency: 'USD', balance: 0 };
+    const updatedMockAccount: Partial<Account> = { id: accountId, name: 'Savings', isActive: false, type: 'ASSET', balance: 0 };
 
     vi.spyOn(prismaService.account, 'update').mockResolvedValue(updatedMockAccount as Account);
 

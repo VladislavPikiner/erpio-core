@@ -25,7 +25,7 @@ describe('TransactionRepository', () => {
   describe('create', () => {
     it('should create transaction and update account balance (DEBIT)', async () => {
       const data = { accountId: 'acc-1', type: 'DEBIT' as const, amount: 100, description: 'Test' };
-      const mockTransaction = { id: 'tx-1', ...data } as Transaction;
+      const mockTransaction = { id: 'tx-1', ...data } as unknown as Transaction;
       const mockAccountUpdate = { id: 'acc-1', balance: 1100 };
 
       // Мокаем внутренние методы, чтобы они не возвращали undefined
