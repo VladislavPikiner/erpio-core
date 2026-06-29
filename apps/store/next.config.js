@@ -9,7 +9,7 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@/*': path.resolve(__dirname, 'src'),
+      '@/*': path.resolve(__dirname, 'app'),
       '@erpio/shared': path.resolve(__dirname, '../../packages/shared/src'),
       '@repo/ui': path.resolve(__dirname, '../../packages/ui/src'),
     };

@@ -5,18 +5,6 @@
     "paths": {
       "@/*": [
         "app/*"
-      ],
-      "@erpio/shared": [
-        "../../packages/shared/src/index.ts"
-      ],
-      "@erpio/shared/*": [
-        "../../packages/shared/src/*"
-      ],
-      "@repo/ui": [
-        "../../packages/ui/src/index.tsx"
-      ],
-      "@repo/ui/*": [
-        "../../packages/ui/src/*"
       ]
     },
     "allowJs": true,
