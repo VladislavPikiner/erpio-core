@@ -20,7 +20,7 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@base-ui/react": "latest",
+
     "@tanstack/react-table": "^8.20.5",
     "react": "19.0.0",
     "react-dom": "19.0.0"
