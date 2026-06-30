@@ -1,5 +1,6 @@
 {
   "name": "@erpio/admin",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,6 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.14.1",
+    "graphql": "^16.8.1",
     "@erpio/shared": "workspace:*",
     "@tailwindcss/postcss": "^4.3.1",
     "@tanstack/react-query": "^5.101.0",
@@ -25,6 +27,7 @@
     "next": "15.1.7",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+
     "recharts": "^3.8.1",
     "tailwind-merge": "^2.6.1",
     "tailwindcss": "^4.3.1"

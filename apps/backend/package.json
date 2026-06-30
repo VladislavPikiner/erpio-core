@@ -36,7 +36,8 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "express": "^4.17.1",
-    "graphql": "^17.0.1",
+    "globals": "^16.5.0",
+    "graphql": "^16.8.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.22.0",
@@ -71,5 +72,5 @@
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  "version": "1.0.0"
+  "type": "module"
 }
