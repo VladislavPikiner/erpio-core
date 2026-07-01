@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SaleRepository } from '../sale.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Sale } from '@prisma/client';
+import { createPrismaMock } from '../../test/prisma.mock';
 
 describe('SaleRepository', () => {
   let repository: SaleRepository;
@@ -9,15 +10,7 @@ describe('SaleRepository', () => {
 
   beforeEach(() => {
     // Мокаем PrismaService
-    prismaService = {
-      sale: {
-        findUnique: vi.fn(),
-        findMany: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-    } as unknown as PrismaService;
+    prismaService = createPrismaMock();
 
     repository = new SaleRepository(prismaService);
   });

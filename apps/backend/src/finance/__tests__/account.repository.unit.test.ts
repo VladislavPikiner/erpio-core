@@ -2,21 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AccountRepository } from '../account.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Account } from '@prisma/client';
+import { createPrismaMock } from '../../test/prisma.mock';
 
 describe('AccountRepository', () => {
   let repository: AccountRepository;
   let prismaService: PrismaService;
 
   beforeEach(() => {
-    prismaService = {
-      account: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-      },
-    } as unknown as PrismaService;
-
+    prismaService = createPrismaMock();
     repository = new AccountRepository(prismaService);
   });
 

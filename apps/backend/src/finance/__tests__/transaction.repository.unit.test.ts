@@ -2,22 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TransactionRepository } from '../transaction.repository';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Transaction } from '@prisma/client';
+import { createPrismaMock } from '../../test/prisma.mock';
 
 describe('TransactionRepository', () => {
   let repository: TransactionRepository;
   let prismaService: PrismaService;
 
   beforeEach(() => {
-    prismaService = {
-      $transaction: vi.fn(),
-      transaction: {
-        create: vi.fn(),
-        findMany: vi.fn(),
-      },
-      account: {
-        update: vi.fn(),
-      },
-    } as unknown as PrismaService;
+    prismaService = createPrismaMock();
 
     repository = new TransactionRepository(prismaService);
   });
