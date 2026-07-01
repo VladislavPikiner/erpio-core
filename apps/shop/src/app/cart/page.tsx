@@ -5,7 +5,7 @@ import { Button } from '@repo/ui';
 import { useCart } from '@erpio/shared';
 import { Trash2 } from 'lucide-react';
 
-export default function CartPage() {
+export default function CartPage(): React.ReactElement {
   const { items, removeItem, updateQuantity, clearCart } = useCart();
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
